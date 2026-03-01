@@ -119,11 +119,10 @@ struct libinput *
 libinput_path_create_context(const struct libinput_interface *interface,
 			     void *user_data);
 
-/* Termux-specific context creation with external event fd */
+/* Termux-specific context creation */
 struct libinput *
 libinput_termux_create_context(const struct libinput_interface *interface,
-			       void *user_data,
-			       int termux_event_fd);
+			       void *user_data);
 
 struct libinput_device *
 libinput_path_add_device(struct libinput *libinput,

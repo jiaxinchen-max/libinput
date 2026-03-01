@@ -16,36 +16,67 @@
 
 struct termux_input_bridge {
     struct libinput *libinput;
-    int termux_fd;
+    pthread_t input_thread;
+    int conn_fd;
+    int event_fd;
+    int running;
     pthread_mutex_t mutex;
 };
 
 static struct termux_input_bridge *global_bridge = NULL;
 
-int
-termux_input_bridge_dispatch(int termux_fd)
+void
+termux_input_bridge_set_eventfd(int event_fd)
 {
+    if (global_bridge) {
+        global_bridge->event_fd = event_fd;
+    }
+}
+
+/* Input thread function */
+static void *
+input_thread_func(void *arg)
+{
+    struct termux_input_bridge *bridge = (struct termux_input_bridge *)arg;
     lorieEvent event;
     ssize_t bytes_read;
-    int events_processed = 0;
     
-    if (!global_bridge || termux_fd < 0) {
-        return -1;
+    while (bridge->running) {
+        /* Try to connect if not connected */
+        if (bridge->conn_fd < 0) {
+            bridge->conn_fd = get_conn_fd();
+            if (bridge->conn_fd < 0) {
+                usleep(100000); /* Wait 100ms before retry */
+                continue;
+            }
+        }
+        
+        /* Read event from termux-display-client */
+        bytes_read = read(bridge->conn_fd, &event, sizeof(event));
+        
+        if (bytes_read == sizeof(event)) {
+            pthread_mutex_lock(&bridge->mutex);
+            process_android_event(bridge, &event);
+            pthread_mutex_unlock(&bridge->mutex);
+        } else if (bytes_read < 0) {
+            if (errno == EAGAIN || errno == EWOULDBLOCK) {
+                usleep(10000); /* Wait 10ms */
+                continue;
+            } else {
+                /* Connection error, reset */
+                close(bridge->conn_fd);
+                bridge->conn_fd = -1;
+                usleep(100000); /* Wait 100ms before retry */
+            }
+        } else if (bytes_read == 0) {
+            /* Connection closed */
+            close(bridge->conn_fd);
+            bridge->conn_fd = -1;
+            usleep(100000); /* Wait 100ms before retry */
+        }
     }
     
-    /* Read all available events from termux-display-client */
-    while ((bytes_read = read(termux_fd, &event, sizeof(event))) == sizeof(event)) {
-        pthread_mutex_lock(&global_bridge->mutex);
-        process_android_event(global_bridge, &event);
-        pthread_mutex_unlock(&global_bridge->mutex);
-        events_processed++;
-    }
-    
-    if (bytes_read < 0 && errno != EAGAIN && errno != EWOULDBLOCK) {
-        return -1;  /* Real error */
-    }
-    
-    return events_processed;
+    return NULL;
 }
 
 /* Convert Android event to libinput event */
@@ -184,7 +215,6 @@ process_android_event(struct termux_input_bridge *bridge, const lorieEvent *even
     }
 }
 
-/* No longer need input thread - events are read on-demand */
 
 int
 termux_input_bridge_init(struct libinput *libinput)
@@ -199,9 +229,19 @@ termux_input_bridge_init(struct libinput *libinput)
     }
     
     global_bridge->libinput = libinput;
-    global_bridge->termux_fd = libinput->termux_event_fd;
+    global_bridge->conn_fd = -1;
+    global_bridge->event_fd = -1;
+    global_bridge->running = 1;
     
     if (pthread_mutex_init(&global_bridge->mutex, NULL) != 0) {
+        free(global_bridge);
+        global_bridge = NULL;
+        return -1;
+    }
+    
+    /* Start input thread */
+    if (pthread_create(&global_bridge->input_thread, NULL, input_thread_func, global_bridge) != 0) {
+        pthread_mutex_destroy(&global_bridge->mutex);
         free(global_bridge);
         global_bridge = NULL;
         return -1;
@@ -215,6 +255,15 @@ termux_input_bridge_destroy(void)
 {
     if (!global_bridge) {
         return;
+    }
+    
+    global_bridge->running = 0;
+    
+    /* Wait for thread to finish */
+    pthread_join(global_bridge->input_thread, NULL);
+    
+    if (global_bridge->conn_fd >= 0) {
+        close(global_bridge->conn_fd);
     }
     
     pthread_mutex_destroy(&global_bridge->mutex);

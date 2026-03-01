@@ -29,9 +29,9 @@ struct libinput {
     struct libinput_event *event_queue_tail;
     pthread_mutex_t event_mutex;
     
-    /* File descriptor for epoll/select - this is the termux event fd */
+    /* File descriptor for epoll/select - internal eventfd */
     int fd;
-    int termux_event_fd;  /* The fd from termux-display-client */
+    int termux_conn_fd;  /* Connection to termux-display-client */
     
     /* Devices */
     struct libinput_device *devices;

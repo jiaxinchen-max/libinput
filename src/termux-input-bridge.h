@@ -21,13 +21,11 @@ struct libinput;
 int termux_input_bridge_init(struct libinput *libinput);
 
 /**
- * Dispatch events from termux-display-client
- * Called when the termux event fd is ready for reading
+ * Set the eventfd to signal when new events are available
  * 
- * @param termux_fd The termux-display-client event fd
- * @return number of events processed, or -1 on error
+ * @param event_fd The eventfd to signal
  */
-int termux_input_bridge_dispatch(int termux_fd);
+void termux_input_bridge_set_eventfd(int event_fd);
 
 /**
  * Destroy the termux input bridge
