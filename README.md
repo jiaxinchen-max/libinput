@@ -73,13 +73,18 @@ dependency('libinput')
 
 ```c
 #include <libinput.h>
+#include <render.h>  // from termux-display-client
 #include <sys/epoll.h>
 
-// Initialize libinput
-struct libinput *li = libinput_udev_create_context(&interface, userdata, udev);
+// Get termux-display-client event fd
+int termux_fd = get_conn_fd();
 
-// Get file descriptor for epoll
+// Initialize libinput with termux fd
+struct libinput *li = libinput_termux_create_context(&interface, userdata, termux_fd);
+
+// Get the same fd for epoll (libinput_get_fd returns the termux_fd)
 int libinput_fd = libinput_get_fd(li);
+assert(libinput_fd == termux_fd);
 
 // Add to epoll
 struct epoll_event ev = {
@@ -90,9 +95,9 @@ epoll_ctl(epoll_fd, EPOLL_CTL_ADD, libinput_fd, &ev);
 
 // In event loop
 if (events[i].data.fd == libinput_fd) {
-    libinput_dispatch(li);
+    libinput_dispatch(li);  // Reads from termux-display-client and converts events
     while ((event = libinput_get_event(li)) != NULL) {
-        // Process event
+        // Process converted libinput event
         libinput_event_destroy(event);
     }
 }
@@ -112,10 +117,10 @@ if (events[i].data.fd == libinput_fd) {
 
 - **termux-display-client Bridge**: Connects to termux-display-client for real input events
 - **Android Keycode Mapping**: Uses termux-display-client's Android-to-Linux keycode mapping
-- **Multi-threaded**: Background thread monitors input events from Android system
-- **Event Translation**: Converts Android touch/mouse/keyboard events to libinput format
-- **File Descriptor Integration**: Provides `libinput_get_fd()` for epoll/select integration
-- **Event Notification**: Uses eventfd to signal when new events are available
+- **Synchronous Event Processing**: Reads events on-demand when `libinput_dispatch()` is called
+- **Event Translation**: Converts Android touch/mouse/keyboard events to libinput format  
+- **File Descriptor Integration**: Uses termux-display-client's event fd for epoll/select integration
+- **External Event Source**: KWin manages the termux-display-client connection and fd
 - **Device Discovery**: Creates virtual devices with standard capabilities
 
 ## Compatibility

@@ -450,8 +450,6 @@ create_touch_event(struct libinput *libinput,
 void
 queue_event(struct libinput *libinput, struct libinput_event *event)
 {
-    uint64_t u = 1;
-    
     if (!libinput || !event)
         return;
         
@@ -468,8 +466,5 @@ queue_event(struct libinput *libinput, struct libinput_event *event)
     
     pthread_mutex_unlock(&libinput->event_mutex);
     
-    /* Signal eventfd that new events are available */
-    if (libinput->fd >= 0) {
-        write(libinput->fd, &u, sizeof(u));
-    }
+    /* Events are queued, KWin will read them via libinput_get_event() */
 }

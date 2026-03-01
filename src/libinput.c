@@ -77,38 +77,15 @@ libinput_udev_create_context(const struct libinput_interface *interface,
     libinput->udev = udev;
     libinput->log_priority = LIBINPUT_LOG_PRIORITY_ERROR;
     libinput->fd = -1;
-    libinput->epoll_fd = -1;
+    libinput->termux_event_fd = -1;
     
     if (pthread_mutex_init(&libinput->event_mutex, NULL) != 0) {
         free(libinput);
         return NULL;
     }
     
-    /* Create eventfd for signaling new events */
-    libinput->fd = eventfd(0, EFD_CLOEXEC | EFD_NONBLOCK);
-    if (libinput->fd < 0) {
-        pthread_mutex_destroy(&libinput->event_mutex);
-        free(libinput);
-        return NULL;
-    }
-    
-    /* Create epoll fd for monitoring input sources */
-    libinput->epoll_fd = epoll_create1(EPOLL_CLOEXEC);
-    if (libinput->epoll_fd < 0) {
-        close(libinput->fd);
-        pthread_mutex_destroy(&libinput->event_mutex);
-        free(libinput);
-        return NULL;
-    }
-    
-    /* Initialize termux input bridge */
-    if (termux_input_bridge_init(libinput) != 0) {
-        libinput_log(libinput, LIBINPUT_LOG_PRIORITY_INFO,
-                    "Failed to initialize termux input bridge, continuing without it");
-    } else {
-        /* Set the eventfd for the bridge to signal */
-        termux_input_bridge_set_eventfd(libinput->fd);
-    }
+    /* For udev context, we don't initialize termux bridge here */
+    /* Use libinput_termux_create_context() for termux integration */
     
     return libinput;
 }
@@ -118,6 +95,50 @@ libinput_path_create_context(const struct libinput_interface *interface,
                              void *user_data)
 {
     return libinput_udev_create_context(interface, user_data, NULL);
+}
+
+struct libinput *
+libinput_termux_create_context(const struct libinput_interface *interface,
+                               void *user_data,
+                               int termux_event_fd)
+{
+    struct libinput *libinput;
+    
+    if (!interface || !interface->open_restricted || !interface->close_restricted) {
+        return NULL;
+    }
+    
+    if (termux_event_fd < 0) {
+        return NULL;
+    }
+    
+    libinput = calloc(1, sizeof(*libinput));
+    if (!libinput)
+        return NULL;
+        
+    libinput->refcount = 1;
+    libinput->interface = interface;
+    libinput->user_data = user_data;
+    libinput->udev = NULL;
+    libinput->log_priority = LIBINPUT_LOG_PRIORITY_ERROR;
+    libinput->fd = termux_event_fd;  /* Use the provided termux event fd */
+    libinput->termux_event_fd = termux_event_fd;
+    
+    if (pthread_mutex_init(&libinput->event_mutex, NULL) != 0) {
+        free(libinput);
+        return NULL;
+    }
+    
+    /* Initialize termux input bridge with the provided fd */
+    if (termux_input_bridge_init(libinput) != 0) {
+        libinput_log(libinput, LIBINPUT_LOG_PRIORITY_ERROR,
+                    "Failed to initialize termux input bridge");
+        pthread_mutex_destroy(&libinput->event_mutex);
+        free(libinput);
+        return NULL;
+    }
+    
+    return libinput;
 }
 
 struct libinput_device *
@@ -244,11 +265,7 @@ libinput_destroy(struct libinput *libinput)
     }
     pthread_mutex_unlock(&libinput->event_mutex);
     
-    /* Close file descriptors */
-    if (libinput->fd >= 0)
-        close(libinput->fd);
-    if (libinput->epoll_fd >= 0)
-        close(libinput->epoll_fd);
+    /* Note: We don't close termux_event_fd as it's owned by the caller (KWin) */
     
     pthread_mutex_destroy(&libinput->event_mutex);
     free(libinput->seat_id);
@@ -272,23 +289,21 @@ libinput_get_user_data(struct libinput *libinput)
 int
 libinput_get_fd(struct libinput *libinput)
 {
-    return libinput ? libinput->fd : -1;
+    /* Return the termux event fd that KWin should monitor */
+    return libinput ? libinput->termux_event_fd : -1;
 }
 
 int
 libinput_dispatch(struct libinput *libinput)
 {
-    uint64_t u;
-    
     if (!libinput || libinput->suspended)
         return 0;
     
-    /* Read from eventfd to clear the notification */
-    if (libinput->fd >= 0) {
-        read(libinput->fd, &u, sizeof(u));
+    /* Trigger the termux input bridge to read from termux-display-client */
+    if (libinput->termux_event_fd >= 0) {
+        termux_input_bridge_dispatch(libinput->termux_event_fd);
     }
     
-    /* Events are already queued by the input bridge thread */
     return 0;
 }
 
