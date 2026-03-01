@@ -21,6 +21,14 @@ struct libinput;
 int termux_input_bridge_init(struct libinput *libinput);
 
 /**
+ * Set the eventfd for the termux input bridge
+ * This fd will be signaled when new events are available
+ * 
+ * @param event_fd The eventfd to signal
+ */
+void termux_input_bridge_set_eventfd(int event_fd);
+
+/**
  * Destroy the termux input bridge
  */
 void termux_input_bridge_destroy(void);

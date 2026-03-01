@@ -10,6 +10,7 @@
 #include <pthread.h>
 #include <unistd.h>
 #include <sys/socket.h>
+#include <sys/eventfd.h>
 #include <errno.h>
 #include <string.h>
 
@@ -17,11 +18,20 @@ struct termux_input_bridge {
     struct libinput *libinput;
     pthread_t input_thread;
     int conn_fd;
+    int event_fd;
     int running;
     pthread_mutex_t mutex;
 };
 
 static struct termux_input_bridge *global_bridge = NULL;
+
+void
+termux_input_bridge_set_eventfd(int event_fd)
+{
+    if (global_bridge) {
+        global_bridge->event_fd = event_fd;
+    }
+}
 
 /* Convert Android event to libinput event */
 static void
@@ -219,6 +229,7 @@ termux_input_bridge_init(struct libinput *libinput)
     
     global_bridge->libinput = libinput;
     global_bridge->conn_fd = -1;
+    global_bridge->event_fd = -1;
     global_bridge->running = 1;
     
     if (pthread_mutex_init(&global_bridge->mutex, NULL) != 0) {

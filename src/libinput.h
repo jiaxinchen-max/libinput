@@ -153,6 +153,9 @@ void *
 libinput_get_user_data(struct libinput *libinput);
 
 int
+libinput_get_fd(struct libinput *libinput);
+
+int
 libinput_dispatch(struct libinput *libinput);
 
 struct libinput_event *

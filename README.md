@@ -69,6 +69,35 @@ pkg-config --cflags --libs libinput
 dependency('libinput')
 ```
 
+### Usage Example
+
+```c
+#include <libinput.h>
+#include <sys/epoll.h>
+
+// Initialize libinput
+struct libinput *li = libinput_udev_create_context(&interface, userdata, udev);
+
+// Get file descriptor for epoll
+int libinput_fd = libinput_get_fd(li);
+
+// Add to epoll
+struct epoll_event ev = {
+    .events = EPOLLIN,
+    .data.fd = libinput_fd
+};
+epoll_ctl(epoll_fd, EPOLL_CTL_ADD, libinput_fd, &ev);
+
+// In event loop
+if (events[i].data.fd == libinput_fd) {
+    libinput_dispatch(li);
+    while ((event = libinput_get_event(li)) != NULL) {
+        // Process event
+        libinput_event_destroy(event);
+    }
+}
+```
+
 ## API Coverage
 
 ### Implemented Functions
@@ -85,6 +114,8 @@ dependency('libinput')
 - **Android Keycode Mapping**: Uses termux-display-client's Android-to-Linux keycode mapping
 - **Multi-threaded**: Background thread monitors input events from Android system
 - **Event Translation**: Converts Android touch/mouse/keyboard events to libinput format
+- **File Descriptor Integration**: Provides `libinput_get_fd()` for epoll/select integration
+- **Event Notification**: Uses eventfd to signal when new events are available
 - **Device Discovery**: Creates virtual devices with standard capabilities
 
 ## Compatibility

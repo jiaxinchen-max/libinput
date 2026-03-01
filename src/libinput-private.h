@@ -29,6 +29,10 @@ struct libinput {
     struct libinput_event *event_queue_tail;
     pthread_mutex_t event_mutex;
     
+    /* File descriptor for epoll/select */
+    int fd;
+    int epoll_fd;
+    
     /* Devices */
     struct libinput_device *devices;
     int num_devices;

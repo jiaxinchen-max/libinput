@@ -13,6 +13,8 @@
 #include <errno.h>
 #include <time.h>
 #include <sys/time.h>
+#include <sys/epoll.h>
+#include <sys/eventfd.h>
 
 struct libinput {
     int refcount;
@@ -74,8 +76,27 @@ libinput_udev_create_context(const struct libinput_interface *interface,
     libinput->user_data = user_data;
     libinput->udev = udev;
     libinput->log_priority = LIBINPUT_LOG_PRIORITY_ERROR;
+    libinput->fd = -1;
+    libinput->epoll_fd = -1;
     
     if (pthread_mutex_init(&libinput->event_mutex, NULL) != 0) {
+        free(libinput);
+        return NULL;
+    }
+    
+    /* Create eventfd for signaling new events */
+    libinput->fd = eventfd(0, EFD_CLOEXEC | EFD_NONBLOCK);
+    if (libinput->fd < 0) {
+        pthread_mutex_destroy(&libinput->event_mutex);
+        free(libinput);
+        return NULL;
+    }
+    
+    /* Create epoll fd for monitoring input sources */
+    libinput->epoll_fd = epoll_create1(EPOLL_CLOEXEC);
+    if (libinput->epoll_fd < 0) {
+        close(libinput->fd);
+        pthread_mutex_destroy(&libinput->event_mutex);
         free(libinput);
         return NULL;
     }
@@ -84,6 +105,9 @@ libinput_udev_create_context(const struct libinput_interface *interface,
     if (termux_input_bridge_init(libinput) != 0) {
         libinput_log(libinput, LIBINPUT_LOG_PRIORITY_INFO,
                     "Failed to initialize termux input bridge, continuing without it");
+    } else {
+        /* Set the eventfd for the bridge to signal */
+        termux_input_bridge_set_eventfd(libinput->fd);
     }
     
     return libinput;
@@ -220,6 +244,12 @@ libinput_destroy(struct libinput *libinput)
     }
     pthread_mutex_unlock(&libinput->event_mutex);
     
+    /* Close file descriptors */
+    if (libinput->fd >= 0)
+        close(libinput->fd);
+    if (libinput->epoll_fd >= 0)
+        close(libinput->epoll_fd);
+    
     pthread_mutex_destroy(&libinput->event_mutex);
     free(libinput->seat_id);
     free(libinput);
@@ -240,12 +270,25 @@ libinput_get_user_data(struct libinput *libinput)
 }
 
 int
+libinput_get_fd(struct libinput *libinput)
+{
+    return libinput ? libinput->fd : -1;
+}
+
+int
 libinput_dispatch(struct libinput *libinput)
 {
+    uint64_t u;
+    
     if (!libinput || libinput->suspended)
         return 0;
-        
-    /* In a real implementation, this would process input events from Android */
+    
+    /* Read from eventfd to clear the notification */
+    if (libinput->fd >= 0) {
+        read(libinput->fd, &u, sizeof(u));
+    }
+    
+    /* Events are already queued by the input bridge thread */
     return 0;
 }
 
