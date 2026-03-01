@@ -29,9 +29,8 @@ struct libinput {
     struct libinput_event *event_queue_tail;
     pthread_mutex_t event_mutex;
     
-    /* File descriptor for epoll/select - internal eventfd */
-    int fd;
-    int termux_conn_fd;  /* Connection to termux-display-client */
+    /* File descriptor for epoll/select - from termux-display-client */
+    int fd;  /* The eventfd from termux-display-client that KWin monitors */
     
     /* Devices */
     struct libinput_device *devices;

@@ -73,13 +73,18 @@ dependency('libinput')
 
 ```c
 #include <libinput.h>
+#include <render.h>  // from termux-display-client
 #include <sys/epoll.h>
 
-// Initialize libinput (it will internally connect to termux-display-client)
-struct libinput *li = libinput_termux_create_context(&interface, userdata);
+// KWin gets the termux-display-client event fd
+int termux_fd = get_conn_fd();
 
-// Get file descriptor for epoll monitoring
+// Initialize libinput with the termux fd
+struct libinput *li = libinput_termux_create_context(&interface, userdata, termux_fd);
+
+// Get the same fd for monitoring (libinput_get_fd returns the termux_fd)
 int libinput_fd = libinput_get_fd(li);
+assert(libinput_fd == termux_fd);
 
 // Add to epoll
 struct epoll_event ev = {
@@ -90,7 +95,7 @@ epoll_ctl(epoll_fd, EPOLL_CTL_ADD, libinput_fd, &ev);
 
 // In event loop
 if (events[i].data.fd == libinput_fd) {
-    libinput_dispatch(li);  // Clear notification
+    libinput_dispatch(li);  // Read from termux fd and convert events
     while ((event = libinput_get_event(li)) != NULL) {
         // Process converted libinput event
         libinput_event_destroy(event);
@@ -112,11 +117,11 @@ if (events[i].data.fd == libinput_fd) {
 
 - **termux-display-client Bridge**: Connects to termux-display-client for real input events
 - **Android Keycode Mapping**: Uses termux-display-client's Android-to-Linux keycode mapping
-- **Background Event Processing**: Internal thread monitors termux-display-client for input events
+- **Synchronous Event Processing**: Reads events on-demand when KWin calls libinput_dispatch()
 - **Event Translation**: Converts Android touch/mouse/keyboard events to libinput format  
-- **File Descriptor Integration**: Provides eventfd for KWin to monitor via epoll/select
-- **Internal Connection Management**: libinput manages termux-display-client connection internally
+- **External FD Management**: KWin manages termux-display-client connection and passes fd to libinput
 - **Standard libinput API**: Follows official libinput patterns for KWin integration
+- **Zero-copy FD sharing**: libinput_get_fd() returns the same fd KWin got from termux-display-client
 - **Device Discovery**: Creates virtual devices with standard capabilities
 
 ## Compatibility
