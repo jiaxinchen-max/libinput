@@ -24,6 +24,7 @@ struct libinput;
 struct libinput_device;
 struct libinput_event;
 struct libinput_seat;
+struct udev;
 
 enum libinput_event_type {
 	LIBINPUT_EVENT_NONE = 0,

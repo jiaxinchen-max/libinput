@@ -17,9 +17,13 @@
 struct termux_input_bridge {
     struct libinput *libinput;
     pthread_mutex_t mutex;
+    int conn_fd;
 };
 
 static struct termux_input_bridge *global_bridge = NULL;
+
+/* Forward declaration */
+static void process_android_event(struct termux_input_bridge *bridge, const lorieEvent *event);
 
 int
 termux_input_bridge_dispatch(int termux_fd)
@@ -197,6 +201,7 @@ termux_input_bridge_init(struct libinput *libinput)
     }
     
     global_bridge->libinput = libinput;
+    global_bridge->conn_fd = -1; /* Initialize as disconnected */
     
     if (pthread_mutex_init(&global_bridge->mutex, NULL) != 0) {
         free(global_bridge);

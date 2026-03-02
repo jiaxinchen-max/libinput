@@ -16,30 +16,6 @@
 #include <sys/epoll.h>
 #include <sys/eventfd.h>
 
-struct libinput {
-    int refcount;
-    void *user_data;
-    
-    const struct libinput_interface *interface;
-    struct udev *udev;
-    
-    /* Event queue */
-    struct libinput_event *event_queue_head;
-    struct libinput_event *event_queue_tail;
-    pthread_mutex_t event_mutex;
-    
-    /* Devices */
-    struct libinput_device *devices;
-    int num_devices;
-    
-    /* Logging */
-    enum libinput_log_priority log_priority;
-    libinput_log_handler log_handler;
-    
-    /* State */
-    int suspended;
-    char *seat_id;
-};
 
 static void
 libinput_log(struct libinput *libinput,
