@@ -84,6 +84,38 @@ enum libinput_pointer_axis {
 	LIBINPUT_POINTER_AXIS_SCROLL_HORIZONTAL = 1,
 };
 
+enum libinput_pointer_axis_source {
+	LIBINPUT_POINTER_AXIS_SOURCE_WHEEL = 1,
+	LIBINPUT_POINTER_AXIS_SOURCE_FINGER,
+	LIBINPUT_POINTER_AXIS_SOURCE_CONTINUOUS,
+	LIBINPUT_POINTER_AXIS_SOURCE_WHEEL_TILT,
+};
+
+enum libinput_tablet_tool_tip_state {
+	LIBINPUT_TABLET_TOOL_TIP_UP = 0,
+	LIBINPUT_TABLET_TOOL_TIP_DOWN = 1,
+};
+
+enum libinput_tablet_pad_ring_axis_source {
+	LIBINPUT_TABLET_PAD_RING_SOURCE_UNKNOWN = 1,
+	LIBINPUT_TABLET_PAD_RING_SOURCE_FINGER,
+};
+
+enum libinput_tablet_pad_strip_axis_source {
+	LIBINPUT_TABLET_PAD_STRIP_SOURCE_UNKNOWN = 1,
+	LIBINPUT_TABLET_PAD_STRIP_SOURCE_FINGER,
+};
+
+enum libinput_switch {
+	LIBINPUT_SWITCH_LID = 1,
+	LIBINPUT_SWITCH_TABLET_MODE,
+};
+
+enum libinput_switch_state {
+	LIBINPUT_SWITCH_STATE_OFF = 0,
+	LIBINPUT_SWITCH_STATE_ON = 1,
+};
+
 enum libinput_log_priority {
 	LIBINPUT_LOG_PRIORITY_DEBUG = 10,
 	LIBINPUT_LOG_PRIORITY_INFO = 20,

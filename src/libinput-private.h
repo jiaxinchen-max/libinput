@@ -31,6 +31,7 @@ struct libinput {
     
     /* File descriptor for epoll/select - from termux-display-client */
     int fd;  /* The eventfd from termux-display-client that KWin monitors */
+    int termux_event_fd;
     
     /* Devices */
     struct libinput_device *devices;
@@ -53,6 +54,8 @@ struct libinput_device {
     
     char *name;
     char *sysname;
+    char *output_name;
+    void *udev_device;
     unsigned int vendor_id;
     unsigned int product_id;
     unsigned int bus_type;
@@ -94,6 +97,12 @@ struct libinput_event_pointer {
     double axis_value;
     int32_t axis_value_discrete;
     enum libinput_pointer_axis_source axis_source;
+    int has_scroll_h;
+    int has_scroll_v;
+    double scroll_h_value;
+    double scroll_v_value;
+    double scroll_h_value_v120;
+    double scroll_v_value_v120;
 };
 
 struct libinput_event_touch {
@@ -110,6 +119,7 @@ struct libinput_event_gesture {
     double dx_unaccel, dy_unaccel;
     double scale;
     double angle;
+    double angle_delta;
     int cancelled;
 };
 
@@ -171,6 +181,31 @@ struct libinput_event *
 libinput_event_create(struct libinput_device *device,
                       enum libinput_event_type type,
                       uint64_t time_usec);
+
+struct libinput_device *
+libinput_device_create(struct libinput *libinput,
+                      const char *name,
+                      const char *sysname,
+                      unsigned int vendor_id,
+                      unsigned int product_id,
+                      unsigned int bus_type);
+
+void
+libinput_device_set_capabilities(struct libinput_device *device,
+                                int has_keyboard,
+                                int has_pointer,
+                                int has_touch,
+                                int has_tablet_tool,
+                                int has_tablet_pad,
+                                int has_gesture,
+                                int has_switch);
+
+uint64_t
+libinput_now_usec(void);
+
+void
+libinput_post_event(struct libinput *libinput,
+                   struct libinput_event *event);
 
 #ifdef __cplusplus
 }

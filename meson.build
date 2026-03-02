@@ -38,14 +38,14 @@ dep_libevdev = declare_dependency()  # We provide our own mock
 dep_lm = cc.find_library('m', required : false)
 dep_pthread = dependency('threads')
 
-# termux-display-client integration (required dependency)
-dep_termux_client = dependency('termux-display-client', required : false)
+# termux-render integration (required dependency)
+dep_termux_client = dependency('termux-render', required : false)
 if not dep_termux_client.found()
     # Try to find as a library
-    dep_termux_client = cc.find_library('termux-display-client', required : true)
+    dep_termux_client = cc.find_library('termux-render', required : true)
 endif
 
-message('Using termux-display-client library for input integration')
+message('Using termux-render library for input integration')
 
 # Include directories
 includes_include = include_directories('.')

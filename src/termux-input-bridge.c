@@ -6,7 +6,7 @@
 #include "termux-input-bridge.h"
 #include "libinput.h"
 #include "evdev.h"
-#include <render.h>
+#include <termux/render/render.h>
 #include <pthread.h>
 #include <unistd.h>
 #include <sys/socket.h>
