@@ -578,10 +578,10 @@ double libinput_event_pointer_get_scroll_value(struct libinput_event_pointer *ev
     return 0.0;
 }
 
-double libinput_event_pointer_get_scroll_value_v120(struct libinput_event_pointer *event, enum libinput_pointer_axis axis)
+int32_t libinput_event_pointer_get_scroll_value_v120(struct libinput_event_pointer *event, enum libinput_pointer_axis axis)
 {
     (void)event; (void)axis;
-    return 0.0;
+    return 0;
 }
 
 struct libinput_event *libinput_event_pointer_get_base_event(struct libinput_event_pointer *event)

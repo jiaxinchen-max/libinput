@@ -543,6 +543,12 @@ libinput_tablet_tool_get_tool_id(struct libinput_tablet_tool *tool);
 uint64_t
 libinput_event_tablet_tool_get_time_usec(struct libinput_event_tablet_tool *event);
 
+struct libinput_event *
+libinput_event_tablet_tool_get_base_event(struct libinput_event_tablet_tool *event);
+
+uint32_t
+libinput_event_tablet_tool_get_time(struct libinput_event_tablet_tool *event);
+
 int
 libinput_event_tablet_tool_x_has_changed(struct libinput_event_tablet_tool *event);
 
@@ -771,6 +777,9 @@ libinput_device_tablet_pad_get_num_mode_groups(struct libinput_device *device);
 struct libinput_tablet_pad_mode_group *
 libinput_device_tablet_pad_get_mode_group(struct libinput_device *device, unsigned int index);
 
+int
+libinput_device_tablet_pad_has_key(struct libinput_device *device, uint32_t code);
+
 /* Tablet pad mode group functions */
 unsigned int
 libinput_tablet_pad_mode_group_get_index(struct libinput_tablet_pad_mode_group *group);
@@ -918,6 +927,7 @@ enum libinput_switch libinput_event_switch_get_switch(struct libinput_event_swit
 enum libinput_switch_state libinput_event_switch_get_switch_state(struct libinput_event_switch *event);
 struct libinput_event *libinput_event_switch_get_base_event(struct libinput_event_switch *event);
 uint32_t libinput_event_switch_get_time(struct libinput_event_switch *event);
+uint64_t libinput_event_switch_get_time_usec(struct libinput_event_switch *event);
 
 /* Tablet pad events */
 struct libinput_event *libinput_event_tablet_pad_get_base_event(struct libinput_event_tablet_pad *event);
