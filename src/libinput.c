@@ -67,6 +67,42 @@ libinput_udev_create_context(const struct libinput_interface *interface,
 }
 
 struct libinput *
+libinput_termux_create_context(const struct libinput_interface *interface,
+                               void *user_data,
+                               int termux_event_fd)
+{
+    struct libinput *libinput;
+    
+    if (!interface || !interface->open_restricted || !interface->close_restricted) {
+        return NULL;
+    }
+    
+    if (termux_event_fd < 0) {
+        return NULL;
+    }
+    
+    libinput = calloc(1, sizeof(*libinput));
+    if (!libinput)
+        return NULL;
+        
+    libinput->refcount = 1;
+    libinput->interface = interface;
+    libinput->user_data = user_data;
+    libinput->log_priority = LIBINPUT_LOG_PRIORITY_ERROR;
+    
+    /* Store the termux event fd for monitoring */
+    libinput->fd = termux_event_fd;
+    
+    /* Initialize the termux input bridge */
+    if (termux_input_bridge_init(libinput) < 0) {
+        free(libinput);
+        return NULL;
+    }
+    
+    return libinput;
+}
+
+struct libinput *
 libinput_path_create_context(const struct libinput_interface *interface,
                              void *user_data)
 {

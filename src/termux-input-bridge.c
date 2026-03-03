@@ -191,6 +191,8 @@ process_android_event(struct termux_input_bridge *bridge, const lorieEvent *even
 int
 termux_input_bridge_init(struct libinput *libinput)
 {
+    struct libinput_device *device;
+    
     if (global_bridge) {
         return 0; /* Already initialized */
     }
@@ -207,6 +209,27 @@ termux_input_bridge_init(struct libinput *libinput)
         free(global_bridge);
         global_bridge = NULL;
         return -1;
+    }
+    
+    /* Create a virtual input device for termux events */
+    device = libinput_device_create(libinput, 
+                                   "Termux Virtual Input Device",
+                                   "termux-input",
+                                   0x1234, /* vendor_id */
+                                   0x5678, /* product_id */
+                                   0x0003  /* bus_type: USB */);
+    
+    if (!device) {
+        termux_input_bridge_destroy();
+        return -1;
+    }
+    
+    /* Set device capabilities */
+    libinput_device_set_capabilities(device, 1, 1, 1, 0, 0, 1, 0);
+    
+    /* Add device to libinput context */
+    if (!libinput->devices) {
+        libinput->devices = device;
     }
     
     return 0;

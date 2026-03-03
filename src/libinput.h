@@ -536,30 +536,7 @@ enum libinput_config_status libinput_device_config_send_events_set_mode(struct l
 /* Keyboard functions */
 int libinput_device_keyboard_has_key(struct libinput_device *device, uint32_t code);
 
-/* Mock udev structures for compatibility */
-struct udev {
-    int dummy;
-};
-
-struct udev_device {
-    char *syspath;
-    char *sysname;
-    char properties[10][2][256];
-    int num_properties;
-};
-
-/* Mock udev functions */
-struct udev *udev_new(void);
-struct udev *udev_ref(struct udev *udev);
-struct udev *udev_unref(struct udev *udev);
-struct udev_device *udev_device_new_from_subsystem_sysname(struct udev *udev,
-                                                           const char *subsystem,
-                                                           const char *sysname);
-struct udev_device *udev_device_ref(struct udev_device *device);
-struct udev_device *udev_device_unref(struct udev_device *device);
-const char *udev_device_get_syspath(struct udev_device *device);
-const char *udev_device_get_sysname(struct udev_device *device);
-const char *udev_device_get_property_value(struct udev_device *device, const char *key);
+/* libinput specific udev integration */
 struct udev_device *libinput_device_get_udev_device(struct libinput_device *device);
 
 #ifdef __cplusplus

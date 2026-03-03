@@ -41,16 +41,12 @@ libinput_device_create(struct libinput *libinput,
         device->seat->libinput = libinput;
     }
     
-    /* Create a mock udev_device for this libinput device */
-    struct udev_device *udev_device = calloc(1, sizeof(*udev_device));
-    if (udev_device) {
-        udev_device->syspath = malloc(256);
-        if (udev_device->syspath) {
-            snprintf(udev_device->syspath, 256, "/sys/devices/virtual/input/%s", sysname);
-        }
-        udev_device->sysname = strdup(sysname);
-        udev_device->devnum = 0;
+    /* Create a udev_device for this libinput device using libudev */
+    struct udev *udev = udev_new();
+    if (udev) {
+        struct udev_device *udev_device = udev_device_new_from_subsystem_sysname(udev, "input", sysname);
         device->udev_device = udev_device;
+        udev_unref(udev);  /* We only need the device, not the context */
     }
     
     return device;
@@ -97,10 +93,7 @@ libinput_device_unref(struct libinput_device *device)
             free(device->seat);
         }
         if (device->udev_device) {
-            struct udev_device *udev_device = (struct udev_device *)device->udev_device;
-            free(udev_device->syspath);
-            free(udev_device->sysname);
-            free(udev_device);
+            udev_device_unref((struct udev_device *)device->udev_device);
         }
         free(device->name);
         free(device->sysname);
@@ -216,91 +209,4 @@ libinput_device_get_id_bustype(struct libinput_device *device)
     return device ? device->bus_type : 0;
 }
 
-/* Mock udev functions */
-struct udev *udev_new(void)
-{
-    struct udev *udev = calloc(1, sizeof(*udev));
-    return udev;
-}
-
-struct udev *udev_ref(struct udev *udev)
-{
-    return udev;
-}
-
-struct udev *udev_unref(struct udev *udev)
-{
-    if (udev) {
-        free(udev);
-    }
-    return NULL;
-}
-
-struct udev_device *udev_device_new_from_subsystem_sysname(struct udev *udev,
-                                                           const char *subsystem,
-                                                           const char *sysname)
-{
-    struct udev_device *device;
-    
-    (void)udev;
-    (void)subsystem;
-    
-    device = calloc(1, sizeof(*device));
-    if (!device)
-        return NULL;
-        
-    device->sysname = strdup(sysname ? sysname : "unknown");
-    device->syspath = strdup("/sys/devices/virtual/input/unknown");
-    
-    strcpy(device->properties[0][0], "ID_INPUT");
-    strcpy(device->properties[0][1], "1");
-    strcpy(device->properties[1][0], "ID_INPUT_KEYBOARD");
-    strcpy(device->properties[1][1], "1");
-    strcpy(device->properties[2][0], "ID_INPUT_MOUSE");
-    strcpy(device->properties[2][1], "1");
-    strcpy(device->properties[3][0], "ID_INPUT_TOUCHPAD");
-    strcpy(device->properties[3][1], "0");
-    device->num_properties = 4;
-    
-    return device;
-}
-
-struct udev_device *udev_device_ref(struct udev_device *device)
-{
-    return device;
-}
-
-struct udev_device *udev_device_unref(struct udev_device *device)
-{
-    if (device) {
-        free(device->syspath);
-        free(device->sysname);
-        free(device);
-    }
-    return NULL;
-}
-
-const char *udev_device_get_syspath(struct udev_device *device)
-{
-    return device ? device->syspath : NULL;
-}
-
-const char *udev_device_get_sysname(struct udev_device *device)
-{
-    return device ? device->sysname : NULL;
-}
-
-const char *udev_device_get_property_value(struct udev_device *device,
-                                           const char *key)
-{
-    if (!device || !key)
-        return NULL;
-        
-    for (int i = 0; i < device->num_properties; i++) {
-        if (strcmp(device->properties[i][0], key) == 0) {
-            return device->properties[i][1];
-        }
-    }
-    
-    return NULL;
-}
+/* udev functions are now provided by libudev library */
