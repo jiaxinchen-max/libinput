@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: MIT
  * 
  * Compatible libinput API implementation for Termux/Android
- * Based on official libinput.h from freedesktop.org
  */
 
 #ifndef LIBINPUT_H
@@ -22,7 +21,6 @@ extern "C" {
  * @defgroup base Initialization and manipulation of libinput contexts
  */
 
-/* Forward declarations */
 struct libinput;
 struct libinput_device;
 struct libinput_event;
@@ -40,18 +38,38 @@ struct libinput_config_area_rectangle {
 	double x2, y2;
 };
 
-/* Event-specific structs */
-struct libinput_event_keyboard;
-struct libinput_event_pointer;
-struct libinput_event_touch;
-struct libinput_event_gesture;
-struct libinput_event_switch;
-
-/* Complete enum definitions from official libinput */
-enum libinput_log_priority {
-	LIBINPUT_LOG_PRIORITY_DEBUG = 10,
-	LIBINPUT_LOG_PRIORITY_INFO = 20,
-	LIBINPUT_LOG_PRIORITY_ERROR = 30,
+enum libinput_event_type {
+	LIBINPUT_EVENT_NONE = 0,
+	LIBINPUT_EVENT_DEVICE_ADDED,
+	LIBINPUT_EVENT_DEVICE_REMOVED,
+	LIBINPUT_EVENT_KEYBOARD_KEY = 300,
+	LIBINPUT_EVENT_POINTER_MOTION = 400,
+	LIBINPUT_EVENT_POINTER_MOTION_ABSOLUTE,
+	LIBINPUT_EVENT_POINTER_BUTTON,
+	LIBINPUT_EVENT_POINTER_SCROLL_WHEEL,
+	LIBINPUT_EVENT_POINTER_SCROLL_FINGER,
+	LIBINPUT_EVENT_POINTER_SCROLL_CONTINUOUS,
+	LIBINPUT_EVENT_TOUCH_DOWN = 500,
+	LIBINPUT_EVENT_TOUCH_UP,
+	LIBINPUT_EVENT_TOUCH_MOTION,
+	LIBINPUT_EVENT_TOUCH_CANCEL,
+	LIBINPUT_EVENT_TOUCH_FRAME,
+	LIBINPUT_EVENT_GESTURE_SWIPE_BEGIN = 600,
+	LIBINPUT_EVENT_GESTURE_SWIPE_UPDATE,
+	LIBINPUT_EVENT_GESTURE_SWIPE_END,
+	LIBINPUT_EVENT_GESTURE_PINCH_BEGIN,
+	LIBINPUT_EVENT_GESTURE_PINCH_UPDATE,
+	LIBINPUT_EVENT_GESTURE_PINCH_END,
+	LIBINPUT_EVENT_GESTURE_HOLD_BEGIN,
+	LIBINPUT_EVENT_GESTURE_HOLD_END,
+	LIBINPUT_EVENT_TABLET_TOOL_AXIS = 700,
+	LIBINPUT_EVENT_TABLET_TOOL_PROXIMITY,
+	LIBINPUT_EVENT_TABLET_TOOL_TIP,
+	LIBINPUT_EVENT_TABLET_TOOL_BUTTON,
+	LIBINPUT_EVENT_TABLET_PAD_BUTTON = 800,
+	LIBINPUT_EVENT_TABLET_PAD_RING,
+	LIBINPUT_EVENT_TABLET_PAD_STRIP,
+	LIBINPUT_EVENT_SWITCH_TOGGLE = 900,
 };
 
 enum libinput_device_capability {
@@ -67,14 +85,6 @@ enum libinput_device_capability {
 enum libinput_key_state {
 	LIBINPUT_KEY_STATE_RELEASED = 0,
 	LIBINPUT_KEY_STATE_PRESSED = 1
-};
-
-enum libinput_led {
-	LIBINPUT_LED_NUM_LOCK = (1 << 0),
-	LIBINPUT_LED_CAPS_LOCK = (1 << 1),
-	LIBINPUT_LED_SCROLL_LOCK = (1 << 2),
-	LIBINPUT_LED_COMPOSE = (1 << 3),
-	LIBINPUT_LED_KANA = (1 << 4)
 };
 
 enum libinput_button_state {
@@ -94,14 +104,9 @@ enum libinput_pointer_axis_source {
 	LIBINPUT_POINTER_AXIS_SOURCE_WHEEL_TILT,
 };
 
-enum libinput_tablet_pad_ring_axis_source {
-	LIBINPUT_TABLET_PAD_RING_SOURCE_UNKNOWN = 1,
-	LIBINPUT_TABLET_PAD_RING_SOURCE_FINGER,
-};
-
-enum libinput_tablet_pad_strip_axis_source {
-	LIBINPUT_TABLET_PAD_STRIP_SOURCE_UNKNOWN = 1,
-	LIBINPUT_TABLET_PAD_STRIP_SOURCE_FINGER,
+enum libinput_tablet_tool_tip_state {
+	LIBINPUT_TABLET_TOOL_TIP_UP = 0,
+	LIBINPUT_TABLET_TOOL_TIP_DOWN = 1,
 };
 
 enum libinput_tablet_tool_type {
@@ -115,71 +120,22 @@ enum libinput_tablet_tool_type {
 	LIBINPUT_TABLET_TOOL_TYPE_TOTEM,
 };
 
-enum libinput_tablet_tool_proximity_state {
-	LIBINPUT_TABLET_TOOL_PROXIMITY_STATE_OUT = 0,
-	LIBINPUT_TABLET_TOOL_PROXIMITY_STATE_IN = 1,
-};
-
-enum libinput_tablet_tool_tip_state {
-	LIBINPUT_TABLET_TOOL_TIP_UP = 0,
-	LIBINPUT_TABLET_TOOL_TIP_DOWN = 1,
-};
-
-enum libinput_switch {
+enum libinput_switch_type {
 	LIBINPUT_SWITCH_LID = 1,
 	LIBINPUT_SWITCH_TABLET_MODE,
 };
 
-enum libinput_switch_state {
-	LIBINPUT_SWITCH_STATE_OFF = 0,
-	LIBINPUT_SWITCH_STATE_ON = 1,
+enum libinput_tablet_pad_ring_axis_source {
+	LIBINPUT_TABLET_PAD_RING_SOURCE_UNKNOWN = 1,
+	LIBINPUT_TABLET_PAD_RING_SOURCE_FINGER,
 };
 
-enum libinput_event_type {
-	LIBINPUT_EVENT_NONE = 0,
-
-	LIBINPUT_EVENT_DEVICE_ADDED,
-	LIBINPUT_EVENT_DEVICE_REMOVED,
-
-	LIBINPUT_EVENT_KEYBOARD_KEY = 300,
-
-	LIBINPUT_EVENT_POINTER_MOTION = 400,
-	LIBINPUT_EVENT_POINTER_MOTION_ABSOLUTE,
-	LIBINPUT_EVENT_POINTER_BUTTON,
-	LIBINPUT_EVENT_POINTER_SCROLL_WHEEL,
-	LIBINPUT_EVENT_POINTER_SCROLL_FINGER,
-	LIBINPUT_EVENT_POINTER_SCROLL_CONTINUOUS,
-	LIBINPUT_EVENT_POINTER_AXIS = LIBINPUT_EVENT_POINTER_SCROLL_WHEEL,
-
-	LIBINPUT_EVENT_TOUCH_DOWN = 500,
-	LIBINPUT_EVENT_TOUCH_UP,
-	LIBINPUT_EVENT_TOUCH_MOTION,
-	LIBINPUT_EVENT_TOUCH_CANCEL,
-	LIBINPUT_EVENT_TOUCH_FRAME,
-
-	LIBINPUT_EVENT_GESTURE_SWIPE_BEGIN = 600,
-	LIBINPUT_EVENT_GESTURE_SWIPE_UPDATE,
-	LIBINPUT_EVENT_GESTURE_SWIPE_END,
-	LIBINPUT_EVENT_GESTURE_PINCH_BEGIN,
-	LIBINPUT_EVENT_GESTURE_PINCH_UPDATE,
-	LIBINPUT_EVENT_GESTURE_PINCH_END,
-	LIBINPUT_EVENT_GESTURE_HOLD_BEGIN,
-	LIBINPUT_EVENT_GESTURE_HOLD_END,
-
-	LIBINPUT_EVENT_TABLET_TOOL_AXIS = 700,
-	LIBINPUT_EVENT_TABLET_TOOL_PROXIMITY,
-	LIBINPUT_EVENT_TABLET_TOOL_TIP,
-	LIBINPUT_EVENT_TABLET_TOOL_BUTTON,
-
-	LIBINPUT_EVENT_TABLET_PAD_BUTTON = 800,
-	LIBINPUT_EVENT_TABLET_PAD_RING,
-	LIBINPUT_EVENT_TABLET_PAD_STRIP,
-	LIBINPUT_EVENT_TABLET_PAD_KEY,
-
-	LIBINPUT_EVENT_SWITCH_TOGGLE = 900,
+enum libinput_tablet_pad_strip_axis_source {
+	LIBINPUT_TABLET_PAD_STRIP_SOURCE_UNKNOWN = 1,
+	LIBINPUT_TABLET_PAD_STRIP_SOURCE_FINGER,
 };
 
-/* Configuration enums */
+/* Configuration enums - matching official libinput values */
 enum libinput_config_status {
 	LIBINPUT_CONFIG_STATUS_SUCCESS = 0,
 	LIBINPUT_CONFIG_STATUS_UNSUPPORTED,
@@ -227,9 +183,9 @@ enum libinput_config_click_method {
 };
 
 enum libinput_config_send_events_mode {
-	LIBINPUT_CONFIG_SEND_EVENTS_ENABLED,
-	LIBINPUT_CONFIG_SEND_EVENTS_DISABLED,
-	LIBINPUT_CONFIG_SEND_EVENTS_DISABLED_ON_EXTERNAL_MOUSE,
+	LIBINPUT_CONFIG_SEND_EVENTS_ENABLED = 0,
+	LIBINPUT_CONFIG_SEND_EVENTS_DISABLED = (1 << 0),
+	LIBINPUT_CONFIG_SEND_EVENTS_DISABLED_ON_EXTERNAL_MOUSE = (1 << 1),
 };
 
 enum libinput_config_dwt_state {
@@ -242,13 +198,36 @@ enum libinput_config_middle_emulation_state {
 	LIBINPUT_CONFIG_MIDDLE_EMULATION_ENABLED,
 };
 
-/**
- * The libinput interface struct
- */
+
+enum libinput_switch_state {
+	LIBINPUT_SWITCH_STATE_OFF = 0,
+	LIBINPUT_SWITCH_STATE_ON = 1,
+};
+
+enum libinput_log_priority {
+	LIBINPUT_LOG_PRIORITY_DEBUG = 10,
+	LIBINPUT_LOG_PRIORITY_INFO = 20,
+	LIBINPUT_LOG_PRIORITY_ERROR = 30,
+};
+
+typedef void (*libinput_log_handler)(struct libinput *libinput,
+				     enum libinput_log_priority priority,
+				     const char *format, va_list args)
+	__attribute__((format(printf, 3, 0)));
+
 struct libinput_interface {
 	int (*open_restricted)(const char *path, int flags, void *user_data);
 	void (*close_restricted)(int fd, void *user_data);
 };
+
+/* Event-specific structs */
+struct libinput_event_keyboard;
+struct libinput_event_pointer;
+struct libinput_event_touch;
+struct libinput_event_gesture;
+struct libinput_event_tablet_tool;
+struct libinput_event_tablet_pad;
+struct libinput_event_switch;
 
 /* Core API functions */
 struct libinput *
@@ -290,6 +269,9 @@ struct libinput *
 libinput_unref(struct libinput *libinput);
 
 void
+libinput_destroy(struct libinput *libinput);
+
+void
 libinput_set_user_data(struct libinput *libinput,
 		       void *user_data);
 
@@ -309,14 +291,6 @@ enum libinput_event_type
 libinput_next_event_type(struct libinput *libinput);
 
 void
-libinput_set_log_handler(struct libinput *libinput,
-			libinput_log_handler log_handler);
-
-typedef void (*libinput_log_handler)(struct libinput *libinput,
-				     enum libinput_log_priority priority,
-				     const char *format, va_list args);
-
-void
 libinput_log_set_priority(struct libinput *libinput,
 			  enum libinput_log_priority priority);
 
@@ -326,6 +300,31 @@ libinput_log_get_priority(const struct libinput *libinput);
 void
 libinput_log_set_handler(struct libinput *libinput,
 			 libinput_log_handler log_handler);
+
+/* Event handling functions */
+void
+libinput_event_destroy(struct libinput_event *event);
+
+enum libinput_event_type
+libinput_event_get_type(struct libinput_event *event);
+
+struct libinput *
+libinput_event_get_context(struct libinput_event *event);
+
+struct libinput_device *
+libinput_event_get_device(struct libinput_event *event);
+
+struct libinput_event_pointer *
+libinput_event_get_pointer_event(struct libinput_event *event);
+
+struct libinput_event_keyboard *
+libinput_event_get_keyboard_event(struct libinput_event *event);
+
+struct libinput_event_touch *
+libinput_event_get_touch_event(struct libinput_event *event);
+
+struct libinput_event_gesture *
+libinput_event_get_gesture_event(struct libinput_event *event);
 
 /* Device functions */
 struct libinput_device *
@@ -361,6 +360,8 @@ libinput_device_get_size(struct libinput_device *device,
 			 double *width,
 			 double *height);
 
+/* libinput_device_keyboard_has_key declaration moved to configuration section */
+
 unsigned int
 libinput_device_get_id_product(struct libinput_device *device);
 
@@ -369,37 +370,6 @@ libinput_device_get_id_vendor(struct libinput_device *device);
 
 unsigned int
 libinput_device_get_id_bustype(struct libinput_device *device);
-
-/* Event functions */
-void
-libinput_event_destroy(struct libinput_event *event);
-
-enum libinput_event_type
-libinput_event_get_type(struct libinput_event *event);
-
-struct libinput_device *
-libinput_event_get_device(struct libinput_event *event);
-
-struct libinput_event_pointer *
-libinput_event_get_pointer_event(struct libinput_event *event);
-
-struct libinput_event_keyboard *
-libinput_event_get_keyboard_event(struct libinput_event *event);
-
-struct libinput_event_touch *
-libinput_event_get_touch_event(struct libinput_event *event);
-
-struct libinput_event_gesture *
-libinput_event_get_gesture_event(struct libinput_event *event);
-
-struct libinput_event_tablet_tool *
-libinput_event_get_tablet_tool_event(struct libinput_event *event);
-
-struct libinput_event_tablet_pad *
-libinput_event_get_tablet_pad_event(struct libinput_event *event);
-
-struct libinput_event_switch *
-libinput_event_get_switch_event(struct libinput_event *event);
 
 /* Keyboard event functions */
 uint32_t
@@ -412,6 +382,9 @@ uint64_t
 libinput_event_keyboard_get_time_usec(struct libinput_event_keyboard *event);
 
 /* Pointer event functions */
+uint64_t
+libinput_event_pointer_get_time_usec(struct libinput_event_pointer *event);
+
 double
 libinput_event_pointer_get_dx(struct libinput_event_pointer *event);
 
@@ -419,10 +392,24 @@ double
 libinput_event_pointer_get_dy(struct libinput_event_pointer *event);
 
 double
+libinput_event_pointer_get_dx_unaccelerated(struct libinput_event_pointer *event);
+
+double
+libinput_event_pointer_get_dy_unaccelerated(struct libinput_event_pointer *event);
+
+double
 libinput_event_pointer_get_absolute_x(struct libinput_event_pointer *event);
 
 double
 libinput_event_pointer_get_absolute_y(struct libinput_event_pointer *event);
+
+double
+libinput_event_pointer_get_absolute_x_transformed(struct libinput_event_pointer *event,
+						  uint32_t width);
+
+double
+libinput_event_pointer_get_absolute_y_transformed(struct libinput_event_pointer *event,
+						  uint32_t height);
 
 uint32_t
 libinput_event_pointer_get_button(struct libinput_event_pointer *event);
@@ -435,18 +422,19 @@ libinput_event_pointer_has_axis(struct libinput_event_pointer *event,
 				enum libinput_pointer_axis axis);
 
 double
-libinput_event_pointer_get_axis_value(struct libinput_event_pointer *event,
-				      enum libinput_pointer_axis axis);
+libinput_event_pointer_get_scroll_value(struct libinput_event_pointer *event,
+					enum libinput_pointer_axis axis);
 
-enum libinput_pointer_axis_source
-libinput_event_pointer_get_axis_source(struct libinput_event_pointer *event);
-
-uint64_t
-libinput_event_pointer_get_time_usec(struct libinput_event_pointer *event);
+int32_t
+libinput_event_pointer_get_scroll_value_v120(struct libinput_event_pointer *event,
+					     enum libinput_pointer_axis axis);
 
 /* Touch event functions */
+uint64_t
+libinput_event_touch_get_time_usec(struct libinput_event_touch *event);
+
 int32_t
-libinput_event_touch_get_slot(struct libinput_event_touch *event);
+libinput_event_touch_get_seat_slot(struct libinput_event_touch *event);
 
 double
 libinput_event_touch_get_x(struct libinput_event_touch *event);
@@ -454,12 +442,32 @@ libinput_event_touch_get_x(struct libinput_event_touch *event);
 double
 libinput_event_touch_get_y(struct libinput_event_touch *event);
 
-uint64_t
-libinput_event_touch_get_time_usec(struct libinput_event_touch *event);
+double
+libinput_event_touch_get_x_transformed(struct libinput_event_touch *event,
+				       uint32_t width);
+
+double
+libinput_event_touch_get_y_transformed(struct libinput_event_touch *event,
+				       uint32_t height);
 
 /* Gesture event functions */
+uint64_t
+libinput_event_gesture_get_time_usec(struct libinput_event_gesture *event);
+
 int
 libinput_event_gesture_get_finger_count(struct libinput_event_gesture *event);
+
+double
+libinput_event_gesture_get_dx_unaccelerated(struct libinput_event_gesture *event);
+
+double
+libinput_event_gesture_get_dy_unaccelerated(struct libinput_event_gesture *event);
+
+double
+libinput_event_gesture_get_scale(struct libinput_event_gesture *event);
+
+double
+libinput_event_gesture_get_angle_delta(struct libinput_event_gesture *event);
 
 int
 libinput_event_gesture_get_cancelled(struct libinput_event_gesture *event);
@@ -512,11 +520,37 @@ libinput_device_get_device_group(struct libinput_device *device);
 
 /* Switch functions */
 int
-libinput_device_switch_has_switch(struct libinput_device *device, enum libinput_switch sw);
+libinput_device_switch_has_switch(struct libinput_device *device, enum libinput_switch_type sw);
 
 /* Pointer functions */
 int
 libinput_device_pointer_has_button(struct libinput_device *device, uint32_t code);
+
+/* Area configuration functions */
+int
+libinput_device_config_area_get_rectangle(struct libinput_device *device, struct libinput_config_area_rectangle *rect);
+
+enum libinput_config_status
+libinput_device_config_area_set_rectangle(struct libinput_device *device, const struct libinput_config_area_rectangle *rect);
+
+/* Tablet pad functions */
+int
+libinput_device_tablet_pad_get_num_buttons(struct libinput_device *device);
+
+int
+libinput_device_tablet_pad_get_num_dials(struct libinput_device *device);
+
+int
+libinput_device_tablet_pad_get_num_rings(struct libinput_device *device);
+
+int
+libinput_device_tablet_pad_get_num_strips(struct libinput_device *device);
+
+int
+libinput_device_tablet_pad_get_num_mode_groups(struct libinput_device *device);
+
+struct libinput_tablet_pad_mode_group *
+libinput_device_tablet_pad_get_mode_group(struct libinput_device *device, unsigned int index);
 
 /* Configuration functions */
 int libinput_device_config_tap_get_finger_count(struct libinput_device *device);
@@ -590,32 +624,6 @@ int libinput_device_config_calibration_has_matrix(struct libinput_device *device
 enum libinput_config_status libinput_device_config_calibration_set_matrix(struct libinput_device *device, const float matrix[6]);
 int libinput_device_config_calibration_get_matrix(struct libinput_device *device, float matrix[6]);
 int libinput_device_config_calibration_get_default_matrix(struct libinput_device *device, float matrix[6]);
-
-/* Area configuration functions */
-int
-libinput_device_config_area_get_rectangle(struct libinput_device *device, struct libinput_config_area_rectangle *rect);
-
-enum libinput_config_status
-libinput_device_config_area_set_rectangle(struct libinput_device *device, const struct libinput_config_area_rectangle *rect);
-
-/* Tablet pad functions */
-int
-libinput_device_tablet_pad_get_num_buttons(struct libinput_device *device);
-
-int
-libinput_device_tablet_pad_get_num_dials(struct libinput_device *device);
-
-int
-libinput_device_tablet_pad_get_num_rings(struct libinput_device *device);
-
-int
-libinput_device_tablet_pad_get_num_strips(struct libinput_device *device);
-
-int
-libinput_device_tablet_pad_get_num_mode_groups(struct libinput_device *device);
-
-struct libinput_tablet_pad_mode_group *
-libinput_device_tablet_pad_get_mode_group(struct libinput_device *device, unsigned int index);
 
 /* Keyboard functions */
 int libinput_device_keyboard_has_key(struct libinput_device *device, uint32_t code);
