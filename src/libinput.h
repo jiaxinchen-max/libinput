@@ -102,6 +102,17 @@ enum libinput_tablet_tool_tip_state {
 	LIBINPUT_TABLET_TOOL_TIP_DOWN = 1,
 };
 
+enum libinput_tablet_tool_type {
+	LIBINPUT_TABLET_TOOL_TYPE_PEN = 1,
+	LIBINPUT_TABLET_TOOL_TYPE_ERASER,
+	LIBINPUT_TABLET_TOOL_TYPE_BRUSH,
+	LIBINPUT_TABLET_TOOL_TYPE_PENCIL,
+	LIBINPUT_TABLET_TOOL_TYPE_AIRBRUSH,
+	LIBINPUT_TABLET_TOOL_TYPE_MOUSE,
+	LIBINPUT_TABLET_TOOL_TYPE_LENS,
+	LIBINPUT_TABLET_TOOL_TYPE_TOTEM,
+};
+
 enum libinput_tablet_pad_ring_axis_source {
 	LIBINPUT_TABLET_PAD_RING_SOURCE_UNKNOWN = 1,
 	LIBINPUT_TABLET_PAD_RING_SOURCE_FINGER,
@@ -466,6 +477,35 @@ libinput_tablet_tool_get_serial(struct libinput_tablet_tool *tool);
 uint64_t
 libinput_tablet_tool_get_tool_id(struct libinput_tablet_tool *tool);
 
+/* Tablet tool management functions */
+struct libinput_tablet_tool *
+libinput_tablet_tool_ref(struct libinput_tablet_tool *tool);
+
+struct libinput_tablet_tool *
+libinput_tablet_tool_unref(struct libinput_tablet_tool *tool);
+
+/* Tablet tool capability functions */
+enum libinput_tablet_tool_type
+libinput_tablet_tool_get_type(struct libinput_tablet_tool *tool);
+
+int
+libinput_tablet_tool_has_pressure(struct libinput_tablet_tool *tool);
+
+int
+libinput_tablet_tool_has_distance(struct libinput_tablet_tool *tool);
+
+int
+libinput_tablet_tool_has_rotation(struct libinput_tablet_tool *tool);
+
+int
+libinput_tablet_tool_has_tilt(struct libinput_tablet_tool *tool);
+
+int
+libinput_tablet_tool_has_slider(struct libinput_tablet_tool *tool);
+
+int
+libinput_tablet_tool_has_wheel(struct libinput_tablet_tool *tool);
+
 /* Configuration functions */
 int libinput_device_config_tap_get_finger_count(struct libinput_device *device);
 enum libinput_config_tap_state libinput_device_config_tap_get_enabled(struct libinput_device *device);
@@ -532,6 +572,12 @@ uint32_t libinput_device_config_send_events_get_modes(struct libinput_device *de
 enum libinput_config_send_events_mode libinput_device_config_send_events_get_mode(struct libinput_device *device);
 enum libinput_config_send_events_mode libinput_device_config_send_events_get_default_mode(struct libinput_device *device);
 enum libinput_config_status libinput_device_config_send_events_set_mode(struct libinput_device *device, enum libinput_config_send_events_mode mode);
+
+/* Calibration functions */
+int libinput_device_config_calibration_has_matrix(struct libinput_device *device);
+enum libinput_config_status libinput_device_config_calibration_set_matrix(struct libinput_device *device, const float matrix[6]);
+int libinput_device_config_calibration_get_matrix(struct libinput_device *device, float matrix[6]);
+int libinput_device_config_calibration_get_default_matrix(struct libinput_device *device, float matrix[6]);
 
 /* Keyboard functions */
 int libinput_device_keyboard_has_key(struct libinput_device *device, uint32_t code);

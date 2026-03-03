@@ -210,3 +210,70 @@ libinput_device_get_id_bustype(struct libinput_device *device)
 }
 
 /* udev functions are now provided by libudev library */
+
+/* Tablet tool functions */
+struct libinput_tablet_tool *
+libinput_tablet_tool_ref(struct libinput_tablet_tool *tool)
+{
+    if (!tool)
+        return NULL;
+    /* Mock: just return the same tool */
+    return tool;
+}
+
+struct libinput_tablet_tool *
+libinput_tablet_tool_unref(struct libinput_tablet_tool *tool)
+{
+    (void)tool;
+    /* Mock: do nothing, return NULL */
+    return NULL;
+}
+
+enum libinput_tablet_tool_type
+libinput_tablet_tool_get_type(struct libinput_tablet_tool *tool)
+{
+    (void)tool;
+    return LIBINPUT_TABLET_TOOL_TYPE_PEN; /* Mock: always return pen */
+}
+
+int
+libinput_tablet_tool_has_pressure(struct libinput_tablet_tool *tool)
+{
+    (void)tool;
+    return 1; /* Mock: assume pressure is available */
+}
+
+int
+libinput_tablet_tool_has_distance(struct libinput_tablet_tool *tool)
+{
+    (void)tool;
+    return 0; /* Mock: assume distance is not available */
+}
+
+int
+libinput_tablet_tool_has_rotation(struct libinput_tablet_tool *tool)
+{
+    (void)tool;
+    return 0; /* Mock: assume rotation is not available */
+}
+
+int
+libinput_tablet_tool_has_tilt(struct libinput_tablet_tool *tool)
+{
+    (void)tool;
+    return 1; /* Mock: assume tilt is available */
+}
+
+int
+libinput_tablet_tool_has_slider(struct libinput_tablet_tool *tool)
+{
+    (void)tool;
+    return 0; /* Mock: assume slider is not available */
+}
+
+int
+libinput_tablet_tool_has_wheel(struct libinput_tablet_tool *tool)
+{
+    (void)tool;
+    return 0; /* Mock: assume wheel is not available */
+}

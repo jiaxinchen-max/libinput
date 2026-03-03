@@ -344,3 +344,35 @@ int libinput_device_keyboard_has_key(struct libinput_device *device, uint32_t co
     (void)code;
     return 1; /* Mock: assume all keys are available */
 }
+
+/* Calibration functions */
+int libinput_device_config_calibration_has_matrix(struct libinput_device *device)
+{
+    (void)device;
+    return 1; /* Mock: assume calibration is available */
+}
+
+enum libinput_config_status libinput_device_config_calibration_set_matrix(struct libinput_device *device, const float matrix[6])
+{
+    (void)device;
+    (void)matrix;
+    return LIBINPUT_CONFIG_STATUS_SUCCESS;
+}
+
+int libinput_device_config_calibration_get_matrix(struct libinput_device *device, float matrix[6])
+{
+    (void)device;
+    /* Return identity matrix */
+    matrix[0] = 1.0f; matrix[1] = 0.0f; matrix[2] = 0.0f;
+    matrix[3] = 0.0f; matrix[4] = 1.0f; matrix[5] = 0.0f;
+    return 1;
+}
+
+int libinput_device_config_calibration_get_default_matrix(struct libinput_device *device, float matrix[6])
+{
+    (void)device;
+    /* Return identity matrix */
+    matrix[0] = 1.0f; matrix[1] = 0.0f; matrix[2] = 0.0f;
+    matrix[3] = 0.0f; matrix[4] = 1.0f; matrix[5] = 0.0f;
+    return 1;
+}
