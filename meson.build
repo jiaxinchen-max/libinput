@@ -33,7 +33,11 @@ config_h.set('_GNU_SOURCE', '1')
 config_h.set_quoted('LIBINPUT_VERSION', meson.project_version())
 
 # Dependencies for Android/Termux
-dep_udev = declare_dependency()  # We provide our own mock
+dep_udev = dependency('libudev', required : false)
+if not dep_udev.found()
+    # Try to find as a library
+    dep_udev = cc.find_library('udev', required : true)
+endif
 dep_libevdev = declare_dependency()  # We provide our own mock
 dep_lm = cc.find_library('m', required : false)
 dep_pthread = dependency('threads')
@@ -103,6 +107,7 @@ pkgconfig.generate(
 	description : 'Input device library (Termux/Android compatible)',
 	version : meson.project_version(),
 	libraries : lib_libinput,
+	requires : 'libudev',
 )
 
 ############ output files ############

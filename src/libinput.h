@@ -11,6 +11,7 @@
 #include <stdint.h>
 #include <stdarg.h>
 #include <stdlib.h>
+#include <libudev.h>
 
 #ifdef __cplusplus
 extern "C" {

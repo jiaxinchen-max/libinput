@@ -7,6 +7,7 @@
 #include "libinput-private.h"
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 /* Device management functions */
 
@@ -38,6 +39,18 @@ libinput_device_create(struct libinput *libinput,
     if (device->seat) {
         device->seat->name = strdup("seat0");
         device->seat->libinput = libinput;
+    }
+    
+    /* Create a mock udev_device for this libinput device */
+    struct udev_device *udev_device = calloc(1, sizeof(*udev_device));
+    if (udev_device) {
+        udev_device->syspath = malloc(256);
+        if (udev_device->syspath) {
+            snprintf(udev_device->syspath, 256, "/sys/devices/virtual/input/%s", sysname);
+        }
+        udev_device->sysname = strdup(sysname);
+        udev_device->devnum = 0;
+        device->udev_device = udev_device;
     }
     
     return device;
@@ -82,6 +95,12 @@ libinput_device_unref(struct libinput_device *device)
         if (device->seat) {
             free(device->seat->name);
             free(device->seat);
+        }
+        if (device->udev_device) {
+            struct udev_device *udev_device = (struct udev_device *)device->udev_device;
+            free(udev_device->syspath);
+            free(udev_device->sysname);
+            free(udev_device);
         }
         free(device->name);
         free(device->sysname);
