@@ -381,13 +381,13 @@ int libinput_device_config_calibration_get_default_matrix(struct libinput_device
 struct libinput_device_group *libinput_device_get_device_group(struct libinput_device *device)
 {
     (void)device;
-    /* Mock: return a dummy pointer */
-    static struct libinput_device_group dummy_group;
-    return &dummy_group;
+    /* Mock: return a dummy pointer - use a simple int as placeholder */
+    static int dummy_group;
+    return (struct libinput_device_group *)&dummy_group;
 }
 
 /* Switch functions */
-int libinput_device_switch_has_switch(struct libinput_device *device, enum libinput_switch_type sw)
+int libinput_device_switch_has_switch(struct libinput_device *device, enum libinput_switch sw)
 {
     (void)device;
     (void)sw;

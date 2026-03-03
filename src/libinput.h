@@ -290,6 +290,9 @@ struct libinput *
 libinput_unref(struct libinput *libinput);
 
 void
+libinput_destroy(struct libinput *libinput);
+
+void
 libinput_set_user_data(struct libinput *libinput,
 		       void *user_data);
 
@@ -308,13 +311,13 @@ libinput_get_event(struct libinput *libinput);
 enum libinput_event_type
 libinput_next_event_type(struct libinput *libinput);
 
-void
-libinput_set_log_handler(struct libinput *libinput,
-			libinput_log_handler log_handler);
-
 typedef void (*libinput_log_handler)(struct libinput *libinput,
 				     enum libinput_log_priority priority,
 				     const char *format, va_list args);
+
+void
+libinput_set_log_handler(struct libinput *libinput,
+			libinput_log_handler log_handler);
 
 void
 libinput_log_set_priority(struct libinput *libinput,
@@ -380,6 +383,9 @@ libinput_event_get_type(struct libinput_event *event);
 struct libinput_device *
 libinput_event_get_device(struct libinput_event *event);
 
+struct libinput *
+libinput_event_get_context(struct libinput_event *event);
+
 struct libinput_event_pointer *
 libinput_event_get_pointer_event(struct libinput_event *event);
 
@@ -444,6 +450,24 @@ libinput_event_pointer_get_axis_source(struct libinput_event_pointer *event);
 uint64_t
 libinput_event_pointer_get_time_usec(struct libinput_event_pointer *event);
 
+double
+libinput_event_pointer_get_dx_unaccelerated(struct libinput_event_pointer *event);
+
+double
+libinput_event_pointer_get_dy_unaccelerated(struct libinput_event_pointer *event);
+
+double
+libinput_event_pointer_get_absolute_x_transformed(struct libinput_event_pointer *event, uint32_t width);
+
+double
+libinput_event_pointer_get_absolute_y_transformed(struct libinput_event_pointer *event, uint32_t height);
+
+double
+libinput_event_pointer_get_scroll_value(struct libinput_event_pointer *event, enum libinput_pointer_axis axis);
+
+int32_t
+libinput_event_pointer_get_scroll_value_v120(struct libinput_event_pointer *event, enum libinput_pointer_axis axis);
+
 /* Touch event functions */
 int32_t
 libinput_event_touch_get_slot(struct libinput_event_touch *event);
@@ -457,12 +481,36 @@ libinput_event_touch_get_y(struct libinput_event_touch *event);
 uint64_t
 libinput_event_touch_get_time_usec(struct libinput_event_touch *event);
 
+int32_t
+libinput_event_touch_get_seat_slot(struct libinput_event_touch *event);
+
+double
+libinput_event_touch_get_x_transformed(struct libinput_event_touch *event, uint32_t width);
+
+double
+libinput_event_touch_get_y_transformed(struct libinput_event_touch *event, uint32_t height);
+
 /* Gesture event functions */
 int
 libinput_event_gesture_get_finger_count(struct libinput_event_gesture *event);
 
 int
 libinput_event_gesture_get_cancelled(struct libinput_event_gesture *event);
+
+uint64_t
+libinput_event_gesture_get_time_usec(struct libinput_event_gesture *event);
+
+double
+libinput_event_gesture_get_dx_unaccelerated(struct libinput_event_gesture *event);
+
+double
+libinput_event_gesture_get_dy_unaccelerated(struct libinput_event_gesture *event);
+
+double
+libinput_event_gesture_get_scale(struct libinput_event_gesture *event);
+
+double
+libinput_event_gesture_get_angle_delta(struct libinput_event_gesture *event);
 
 /* Tablet tool functions */
 struct libinput_tablet_tool *
