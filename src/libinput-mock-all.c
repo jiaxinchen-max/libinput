@@ -1135,3 +1135,150 @@ unsigned int libinput_device_config_rotation_get_default_angle(struct libinput_d
     (void)device;
     return 0;
 }
+
+/* Additional tablet pad event functions */
+uint32_t libinput_event_tablet_pad_get_time(struct libinput_event_tablet_pad *event)
+{
+    (void)event;
+    return 0;
+}
+
+uint64_t libinput_event_tablet_pad_get_time_usec(struct libinput_event_tablet_pad *event)
+{
+    (void)event;
+    return 0;
+}
+
+double libinput_event_tablet_pad_get_dial_delta_v120(struct libinput_event_tablet_pad *event)
+{
+    (void)event;
+    return 0.0;
+}
+
+unsigned int libinput_event_tablet_pad_get_dial_number(struct libinput_event_tablet_pad *event)
+{
+    (void)event;
+    return 0;
+}
+
+struct libinput_event *libinput_event_tablet_pad_get_base_event(struct libinput_event_tablet_pad *event)
+{
+    (void)event;
+    return NULL;
+}
+
+double libinput_event_tablet_pad_get_ring_position(struct libinput_event_tablet_pad *event)
+{
+    (void)event;
+    return 0.0;
+}
+
+unsigned int libinput_event_tablet_pad_get_ring_number(struct libinput_event_tablet_pad *event)
+{
+    (void)event;
+    return 0;
+}
+
+enum libinput_tablet_pad_ring_axis_source libinput_event_tablet_pad_get_ring_source(struct libinput_event_tablet_pad *event)
+{
+    (void)event;
+    return LIBINPUT_TABLET_PAD_RING_SOURCE_UNKNOWN;
+}
+
+double libinput_event_tablet_pad_get_strip_position(struct libinput_event_tablet_pad *event)
+{
+    (void)event;
+    return 0.0;
+}
+
+unsigned int libinput_event_tablet_pad_get_strip_number(struct libinput_event_tablet_pad *event)
+{
+    (void)event;
+    return 0;
+}
+
+enum libinput_tablet_pad_strip_axis_source libinput_event_tablet_pad_get_strip_source(struct libinput_event_tablet_pad *event)
+{
+    (void)event;
+    return LIBINPUT_TABLET_PAD_STRIP_SOURCE_UNKNOWN;
+}
+
+uint32_t libinput_event_tablet_pad_get_button_number(struct libinput_event_tablet_pad *event)
+{
+    (void)event;
+    return 0;
+}
+
+enum libinput_button_state libinput_event_tablet_pad_get_button_state(struct libinput_event_tablet_pad *event)
+{
+    (void)event;
+    return LIBINPUT_BUTTON_STATE_RELEASED;
+}
+
+uint32_t libinput_event_tablet_pad_get_key(struct libinput_event_tablet_pad *event)
+{
+    (void)event;
+    return 0;
+}
+
+enum libinput_key_state libinput_event_tablet_pad_get_key_state(struct libinput_event_tablet_pad *event)
+{
+    (void)event;
+    return LIBINPUT_KEY_STATE_RELEASED;
+}
+
+unsigned int libinput_event_tablet_pad_get_mode(struct libinput_event_tablet_pad *event)
+{
+    (void)event;
+    return 0;
+}
+
+struct libinput_tablet_pad_mode_group *libinput_event_tablet_pad_get_mode_group(struct libinput_event_tablet_pad *event)
+{
+    (void)event;
+    return NULL;
+}
+
+/* Tablet pad mode group functions */
+int libinput_tablet_pad_mode_group_button_is_toggle(struct libinput_tablet_pad_mode_group *group, unsigned int button)
+{
+    (void)group; (void)button;
+    return 0;
+}
+
+/* Tablet tool configuration functions */
+int libinput_tablet_tool_config_pressure_range_is_available(struct libinput_tablet_tool *tool)
+{
+    (void)tool;
+    return 0;
+}
+
+enum libinput_config_status libinput_tablet_tool_config_pressure_range_set(struct libinput_tablet_tool *tool, double minimum, double maximum)
+{
+    (void)tool; (void)minimum; (void)maximum;
+    return LIBINPUT_CONFIG_STATUS_SUCCESS;
+}
+
+double libinput_tablet_tool_config_pressure_range_get_minimum(struct libinput_tablet_tool *tool)
+{
+    (void)tool;
+    return 0.0;
+}
+
+double libinput_tablet_tool_config_pressure_range_get_maximum(struct libinput_tablet_tool *tool)
+{
+    (void)tool;
+    return 1.0;
+}
+
+double libinput_tablet_tool_config_pressure_range_get_default_minimum(struct libinput_tablet_tool *tool)
+{
+    (void)tool;
+    return 0.0;
+}
+
+double libinput_tablet_tool_config_pressure_range_get_default_maximum(struct libinput_tablet_tool *tool)
+{
+    (void)tool;
+    return 1.0;
+}

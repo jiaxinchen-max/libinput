@@ -171,12 +171,13 @@ enum libinput_event_type {
 	LIBINPUT_EVENT_TABLET_TOOL_TIP,
 	LIBINPUT_EVENT_TABLET_TOOL_BUTTON,
 
-	LIBINPUT_EVENT_TABLET_PAD_BUTTON = 800,
+	LIBINPUT_EVENT_TABLET_PAD_BUTTON = 700,
 	LIBINPUT_EVENT_TABLET_PAD_RING,
 	LIBINPUT_EVENT_TABLET_PAD_STRIP,
 	LIBINPUT_EVENT_TABLET_PAD_KEY,
+	LIBINPUT_EVENT_TABLET_PAD_DIAL,
 
-	LIBINPUT_EVENT_SWITCH_TOGGLE = 900,
+	LIBINPUT_EVENT_SWITCH_TOGGLE = 800,
 };
 
 /* Configuration enums */
@@ -659,6 +660,25 @@ libinput_tablet_tool_has_slider(struct libinput_tablet_tool *tool);
 int
 libinput_tablet_tool_has_wheel(struct libinput_tablet_tool *tool);
 
+/* Tablet tool configuration functions */
+int
+libinput_tablet_tool_config_pressure_range_is_available(struct libinput_tablet_tool *tool);
+
+enum libinput_config_status
+libinput_tablet_tool_config_pressure_range_set(struct libinput_tablet_tool *tool, double minimum, double maximum);
+
+double
+libinput_tablet_tool_config_pressure_range_get_minimum(struct libinput_tablet_tool *tool);
+
+double
+libinput_tablet_tool_config_pressure_range_get_maximum(struct libinput_tablet_tool *tool);
+
+double
+libinput_tablet_tool_config_pressure_range_get_default_minimum(struct libinput_tablet_tool *tool);
+
+double
+libinput_tablet_tool_config_pressure_range_get_default_maximum(struct libinput_tablet_tool *tool);
+
 /* Device group functions */
 struct libinput_device_group *
 libinput_device_get_device_group(struct libinput_device *device);
@@ -802,6 +822,9 @@ libinput_tablet_pad_mode_group_has_ring(struct libinput_tablet_pad_mode_group *g
 int
 libinput_tablet_pad_mode_group_has_strip(struct libinput_tablet_pad_mode_group *group, unsigned int strip);
 
+int
+libinput_tablet_pad_mode_group_button_is_toggle(struct libinput_tablet_pad_mode_group *group, unsigned int button);
+
 /* Device LED functions */
 void
 libinput_device_led_update(struct libinput_device *device, enum libinput_led leds);
@@ -944,6 +967,9 @@ enum libinput_key_state libinput_event_tablet_pad_get_key_state(struct libinput_
 unsigned int libinput_event_tablet_pad_get_mode(struct libinput_event_tablet_pad *event);
 struct libinput_tablet_pad_mode_group *libinput_event_tablet_pad_get_mode_group(struct libinput_event_tablet_pad *event);
 uint32_t libinput_event_tablet_pad_get_time(struct libinput_event_tablet_pad *event);
+uint64_t libinput_event_tablet_pad_get_time_usec(struct libinput_event_tablet_pad *event);
+double libinput_event_tablet_pad_get_dial_delta_v120(struct libinput_event_tablet_pad *event);
+unsigned int libinput_event_tablet_pad_get_dial_number(struct libinput_event_tablet_pad *event);
 
 /* Additional missing functions - duplicate declarations removed to avoid conflicts */
 
