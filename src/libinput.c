@@ -109,49 +109,6 @@ libinput_path_create_context(const struct libinput_interface *interface,
     return libinput_udev_create_context(interface, user_data, NULL);
 }
 
-struct libinput *
-libinput_termux_create_context(const struct libinput_interface *interface,
-                               void *user_data,
-                               int termux_event_fd)
-{
-    struct libinput *libinput;
-    
-    if (!interface || !interface->open_restricted || !interface->close_restricted) {
-        return NULL;
-    }
-    
-    if (termux_event_fd < 0) {
-        return NULL;
-    }
-    
-    libinput = calloc(1, sizeof(*libinput));
-    if (!libinput)
-        return NULL;
-        
-    libinput->refcount = 1;
-    libinput->interface = interface;
-    libinput->user_data = user_data;
-    libinput->udev = NULL;
-    libinput->log_priority = LIBINPUT_LOG_PRIORITY_ERROR;
-    libinput->fd = termux_event_fd;  /* Use the termux-display-client eventfd */
-    
-    if (pthread_mutex_init(&libinput->event_mutex, NULL) != 0) {
-        free(libinput);
-        return NULL;
-    }
-    
-    /* Initialize termux input bridge with the provided fd */
-    if (termux_input_bridge_init(libinput) != 0) {
-        libinput_log(libinput, LIBINPUT_LOG_PRIORITY_ERROR,
-                    "Failed to initialize termux input bridge");
-        pthread_mutex_destroy(&libinput->event_mutex);
-        free(libinput);
-        return NULL;
-    }
-    
-    return libinput;
-}
-
 struct libinput_device *
 libinput_path_add_device(struct libinput *libinput,
                          const char *path)
