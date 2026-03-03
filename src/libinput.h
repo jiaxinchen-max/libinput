@@ -525,6 +525,91 @@ libinput_tablet_tool_get_serial(struct libinput_tablet_tool *tool);
 uint64_t
 libinput_tablet_tool_get_tool_id(struct libinput_tablet_tool *tool);
 
+/* Tablet tool event functions */
+uint64_t
+libinput_event_tablet_tool_get_time_usec(struct libinput_event_tablet_tool *event);
+
+int
+libinput_event_tablet_tool_x_has_changed(struct libinput_event_tablet_tool *event);
+
+int
+libinput_event_tablet_tool_y_has_changed(struct libinput_event_tablet_tool *event);
+
+int
+libinput_event_tablet_tool_pressure_has_changed(struct libinput_event_tablet_tool *event);
+
+int
+libinput_event_tablet_tool_distance_has_changed(struct libinput_event_tablet_tool *event);
+
+int
+libinput_event_tablet_tool_tilt_x_has_changed(struct libinput_event_tablet_tool *event);
+
+int
+libinput_event_tablet_tool_tilt_y_has_changed(struct libinput_event_tablet_tool *event);
+
+int
+libinput_event_tablet_tool_rotation_has_changed(struct libinput_event_tablet_tool *event);
+
+int
+libinput_event_tablet_tool_slider_has_changed(struct libinput_event_tablet_tool *event);
+
+int
+libinput_event_tablet_tool_wheel_has_changed(struct libinput_event_tablet_tool *event);
+
+double
+libinput_event_tablet_tool_get_x(struct libinput_event_tablet_tool *event);
+
+double
+libinput_event_tablet_tool_get_y(struct libinput_event_tablet_tool *event);
+
+double
+libinput_event_tablet_tool_get_dx(struct libinput_event_tablet_tool *event);
+
+double
+libinput_event_tablet_tool_get_dy(struct libinput_event_tablet_tool *event);
+
+double
+libinput_event_tablet_tool_get_pressure(struct libinput_event_tablet_tool *event);
+
+double
+libinput_event_tablet_tool_get_distance(struct libinput_event_tablet_tool *event);
+
+double
+libinput_event_tablet_tool_get_tilt_x(struct libinput_event_tablet_tool *event);
+
+double
+libinput_event_tablet_tool_get_tilt_y(struct libinput_event_tablet_tool *event);
+
+double
+libinput_event_tablet_tool_get_rotation(struct libinput_event_tablet_tool *event);
+
+double
+libinput_event_tablet_tool_get_slider_position(struct libinput_event_tablet_tool *event);
+
+double
+libinput_event_tablet_tool_get_wheel_delta(struct libinput_event_tablet_tool *event);
+
+int32_t
+libinput_event_tablet_tool_get_wheel_delta_discrete(struct libinput_event_tablet_tool *event);
+
+double
+libinput_event_tablet_tool_get_x_transformed(struct libinput_event_tablet_tool *event, uint32_t width);
+
+double
+libinput_event_tablet_tool_get_y_transformed(struct libinput_event_tablet_tool *event, uint32_t height);
+
+enum libinput_tablet_tool_tip_state
+libinput_event_tablet_tool_get_tip_state(struct libinput_event_tablet_tool *event);
+
+enum libinput_tablet_tool_proximity_state
+libinput_event_tablet_tool_get_proximity_state(struct libinput_event_tablet_tool *event);
+
+uint32_t
+libinput_event_tablet_tool_get_button(struct libinput_event_tablet_tool *event);
+
+enum libinput_button_state
+libinput_event_tablet_tool_get_button_state(struct libinput_event_tablet_tool *event);
+
 /* Tablet tool management functions */
 struct libinput_tablet_tool *
 libinput_tablet_tool_ref(struct libinput_tablet_tool *tool);
