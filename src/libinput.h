@@ -24,6 +24,10 @@ struct libinput;
 struct libinput_device;
 struct libinput_event;
 struct libinput_seat;
+struct libinput_tablet_tool;
+struct libinput_tablet_pad;
+struct libinput_event_tablet_tool;
+struct libinput_event_tablet_pad;
 struct udev;
 
 enum libinput_event_type {
@@ -105,6 +109,69 @@ enum libinput_tablet_pad_ring_axis_source {
 enum libinput_tablet_pad_strip_axis_source {
 	LIBINPUT_TABLET_PAD_STRIP_SOURCE_UNKNOWN = 1,
 	LIBINPUT_TABLET_PAD_STRIP_SOURCE_FINGER,
+};
+
+/* Configuration enums - matching official libinput values */
+enum libinput_config_status {
+	LIBINPUT_CONFIG_STATUS_SUCCESS = 0,
+	LIBINPUT_CONFIG_STATUS_UNSUPPORTED,
+	LIBINPUT_CONFIG_STATUS_INVALID,
+};
+
+enum libinput_config_tap_state {
+	LIBINPUT_CONFIG_TAP_DISABLED,
+	LIBINPUT_CONFIG_TAP_ENABLED,
+};
+
+enum libinput_config_tap_button_map {
+	LIBINPUT_CONFIG_TAP_MAP_LRM,
+	LIBINPUT_CONFIG_TAP_MAP_LMR,
+};
+
+enum libinput_config_drag_state {
+	LIBINPUT_CONFIG_DRAG_DISABLED,
+	LIBINPUT_CONFIG_DRAG_ENABLED,
+};
+
+enum libinput_config_drag_lock_state {
+	LIBINPUT_CONFIG_DRAG_LOCK_DISABLED,
+	LIBINPUT_CONFIG_DRAG_LOCK_ENABLED,
+};
+
+enum libinput_config_scroll_method {
+	LIBINPUT_CONFIG_SCROLL_NO_SCROLL = 0,
+	LIBINPUT_CONFIG_SCROLL_2FG = (1 << 0),
+	LIBINPUT_CONFIG_SCROLL_EDGE = (1 << 1),
+	LIBINPUT_CONFIG_SCROLL_ON_BUTTON_DOWN = (1 << 2),
+};
+
+enum libinput_config_accel_profile {
+	LIBINPUT_CONFIG_ACCEL_PROFILE_NONE = 0,
+	LIBINPUT_CONFIG_ACCEL_PROFILE_FLAT = (1 << 0),
+	LIBINPUT_CONFIG_ACCEL_PROFILE_ADAPTIVE = (1 << 1),
+	LIBINPUT_CONFIG_ACCEL_PROFILE_CUSTOM = (1 << 2),
+};
+
+enum libinput_config_click_method {
+	LIBINPUT_CONFIG_CLICK_METHOD_NONE = 0,
+	LIBINPUT_CONFIG_CLICK_METHOD_BUTTON_AREAS = (1 << 0),
+	LIBINPUT_CONFIG_CLICK_METHOD_CLICKFINGER = (1 << 1),
+};
+
+enum libinput_config_send_events_mode {
+	LIBINPUT_CONFIG_SEND_EVENTS_ENABLED = 0,
+	LIBINPUT_CONFIG_SEND_EVENTS_DISABLED = (1 << 0),
+	LIBINPUT_CONFIG_SEND_EVENTS_DISABLED_ON_EXTERNAL_MOUSE = (1 << 1),
+};
+
+enum libinput_config_dwt_state {
+	LIBINPUT_CONFIG_DWT_DISABLED,
+	LIBINPUT_CONFIG_DWT_ENABLED,
+};
+
+enum libinput_config_middle_emulation_state {
+	LIBINPUT_CONFIG_MIDDLE_EMULATION_DISABLED,
+	LIBINPUT_CONFIG_MIDDLE_EMULATION_ENABLED,
 };
 
 enum libinput_switch {
@@ -386,6 +453,89 @@ libinput_event_gesture_get_angle_delta(struct libinput_event_gesture *event);
 
 int
 libinput_event_gesture_get_cancelled(struct libinput_event_gesture *event);
+
+/* Tablet tool functions */
+struct libinput_tablet_tool *
+libinput_event_tablet_tool_get_tool(struct libinput_event_tablet_tool *event);
+
+struct libinput_event_tablet_tool *
+libinput_event_get_tablet_tool_event(struct libinput_event *event);
+
+uint64_t
+libinput_tablet_tool_get_serial(struct libinput_tablet_tool *tool);
+
+uint64_t
+libinput_tablet_tool_get_tool_id(struct libinput_tablet_tool *tool);
+
+/* Configuration functions */
+int libinput_device_config_tap_get_finger_count(struct libinput_device *device);
+enum libinput_config_tap_state libinput_device_config_tap_get_enabled(struct libinput_device *device);
+enum libinput_config_tap_state libinput_device_config_tap_get_default_enabled(struct libinput_device *device);
+enum libinput_config_status libinput_device_config_tap_set_enabled(struct libinput_device *device, enum libinput_config_tap_state enable);
+
+enum libinput_config_tap_button_map libinput_device_config_tap_get_button_map(struct libinput_device *device);
+enum libinput_config_tap_button_map libinput_device_config_tap_get_default_button_map(struct libinput_device *device);
+enum libinput_config_status libinput_device_config_tap_set_button_map(struct libinput_device *device, enum libinput_config_tap_button_map map);
+
+enum libinput_config_drag_state libinput_device_config_tap_get_drag_enabled(struct libinput_device *device);
+enum libinput_config_drag_state libinput_device_config_tap_get_default_drag_enabled(struct libinput_device *device);
+enum libinput_config_status libinput_device_config_tap_set_drag_enabled(struct libinput_device *device, enum libinput_config_drag_state enable);
+
+enum libinput_config_drag_lock_state libinput_device_config_tap_get_drag_lock_enabled(struct libinput_device *device);
+enum libinput_config_drag_lock_state libinput_device_config_tap_get_default_drag_lock_enabled(struct libinput_device *device);
+enum libinput_config_status libinput_device_config_tap_set_drag_lock_enabled(struct libinput_device *device, enum libinput_config_drag_lock_state enable);
+
+uint32_t libinput_device_config_scroll_get_methods(struct libinput_device *device);
+enum libinput_config_scroll_method libinput_device_config_scroll_get_method(struct libinput_device *device);
+enum libinput_config_scroll_method libinput_device_config_scroll_get_default_method(struct libinput_device *device);
+enum libinput_config_status libinput_device_config_scroll_set_method(struct libinput_device *device, enum libinput_config_scroll_method method);
+
+uint32_t libinput_device_config_scroll_get_button(struct libinput_device *device);
+uint32_t libinput_device_config_scroll_get_default_button(struct libinput_device *device);
+enum libinput_config_status libinput_device_config_scroll_set_button(struct libinput_device *device, uint32_t button);
+
+int libinput_device_config_scroll_has_natural_scroll(struct libinput_device *device);
+int libinput_device_config_scroll_get_natural_scroll_enabled(struct libinput_device *device);
+int libinput_device_config_scroll_get_default_natural_scroll_enabled(struct libinput_device *device);
+enum libinput_config_status libinput_device_config_scroll_set_natural_scroll_enabled(struct libinput_device *device, int enable);
+
+int libinput_device_config_left_handed_is_available(struct libinput_device *device);
+int libinput_device_config_left_handed_get(struct libinput_device *device);
+int libinput_device_config_left_handed_get_default(struct libinput_device *device);
+enum libinput_config_status libinput_device_config_left_handed_set(struct libinput_device *device, int left_handed);
+
+uint32_t libinput_device_config_click_get_methods(struct libinput_device *device);
+enum libinput_config_click_method libinput_device_config_click_get_method(struct libinput_device *device);
+enum libinput_config_click_method libinput_device_config_click_get_default_method(struct libinput_device *device);
+enum libinput_config_status libinput_device_config_click_set_method(struct libinput_device *device, enum libinput_config_click_method method);
+
+int libinput_device_config_middle_emulation_is_available(struct libinput_device *device);
+enum libinput_config_middle_emulation_state libinput_device_config_middle_emulation_get_enabled(struct libinput_device *device);
+enum libinput_config_middle_emulation_state libinput_device_config_middle_emulation_get_default_enabled(struct libinput_device *device);
+enum libinput_config_status libinput_device_config_middle_emulation_set_enabled(struct libinput_device *device, enum libinput_config_middle_emulation_state enable);
+
+int libinput_device_config_dwt_is_available(struct libinput_device *device);
+enum libinput_config_dwt_state libinput_device_config_dwt_get_enabled(struct libinput_device *device);
+enum libinput_config_dwt_state libinput_device_config_dwt_get_default_enabled(struct libinput_device *device);
+enum libinput_config_status libinput_device_config_dwt_set_enabled(struct libinput_device *device, enum libinput_config_dwt_state enable);
+
+int libinput_device_config_accel_is_available(struct libinput_device *device);
+double libinput_device_config_accel_get_speed(struct libinput_device *device);
+double libinput_device_config_accel_get_default_speed(struct libinput_device *device);
+enum libinput_config_status libinput_device_config_accel_set_speed(struct libinput_device *device, double speed);
+
+uint32_t libinput_device_config_accel_get_profiles(struct libinput_device *device);
+enum libinput_config_accel_profile libinput_device_config_accel_get_profile(struct libinput_device *device);
+enum libinput_config_accel_profile libinput_device_config_accel_get_default_profile(struct libinput_device *device);
+enum libinput_config_status libinput_device_config_accel_set_profile(struct libinput_device *device, enum libinput_config_accel_profile profile);
+
+uint32_t libinput_device_config_send_events_get_modes(struct libinput_device *device);
+enum libinput_config_send_events_mode libinput_device_config_send_events_get_mode(struct libinput_device *device);
+enum libinput_config_send_events_mode libinput_device_config_send_events_get_default_mode(struct libinput_device *device);
+enum libinput_config_status libinput_device_config_send_events_set_mode(struct libinput_device *device, enum libinput_config_send_events_mode mode);
+
+/* Keyboard functions */
+int libinput_device_keyboard_has_key(struct libinput_device *device, uint32_t code);
 
 /* Mock udev structures for compatibility */
 struct udev {
