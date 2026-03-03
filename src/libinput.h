@@ -242,6 +242,22 @@ enum libinput_config_middle_emulation_state {
 	LIBINPUT_CONFIG_MIDDLE_EMULATION_ENABLED,
 };
 
+enum libinput_led {
+	LIBINPUT_LED_NUM_LOCK = (1 << 0),
+	LIBINPUT_LED_CAPS_LOCK = (1 << 1),
+	LIBINPUT_LED_SCROLL_LOCK = (1 << 2),
+};
+
+enum libinput_tablet_pad_ring_axis_source {
+	LIBINPUT_TABLET_PAD_RING_SOURCE_UNKNOWN = 1,
+	LIBINPUT_TABLET_PAD_RING_SOURCE_FINGER,
+};
+
+enum libinput_tablet_pad_strip_axis_source {
+	LIBINPUT_TABLET_PAD_STRIP_SOURCE_UNKNOWN = 1,
+	LIBINPUT_TABLET_PAD_STRIP_SOURCE_FINGER,
+};
+
 /**
  * The libinput interface struct
  */
@@ -750,11 +766,251 @@ libinput_device_tablet_pad_get_num_mode_groups(struct libinput_device *device);
 struct libinput_tablet_pad_mode_group *
 libinput_device_tablet_pad_get_mode_group(struct libinput_device *device, unsigned int index);
 
+/* Tablet pad mode group functions */
+unsigned int
+libinput_tablet_pad_mode_group_get_index(struct libinput_tablet_pad_mode_group *group);
+
+unsigned int
+libinput_tablet_pad_mode_group_get_num_modes(struct libinput_tablet_pad_mode_group *group);
+
+unsigned int
+libinput_tablet_pad_mode_group_get_mode(struct libinput_tablet_pad_mode_group *group);
+
+int
+libinput_tablet_pad_mode_group_has_button(struct libinput_tablet_pad_mode_group *group, unsigned int button);
+
+int
+libinput_tablet_pad_mode_group_has_dial(struct libinput_tablet_pad_mode_group *group, unsigned int dial);
+
+int
+libinput_tablet_pad_mode_group_has_ring(struct libinput_tablet_pad_mode_group *group, unsigned int ring);
+
+int
+libinput_tablet_pad_mode_group_has_strip(struct libinput_tablet_pad_mode_group *group, unsigned int strip);
+
+/* Device LED functions */
+void
+libinput_device_led_update(struct libinput_device *device, enum libinput_led leds);
+
+/* Area configuration functions */
+int
+libinput_device_config_area_has_rectangle(struct libinput_device *device);
+
+/* Rotation configuration functions */
+int
+libinput_device_config_rotation_is_available(struct libinput_device *device);
+
+unsigned int
+libinput_device_config_rotation_get_angle(struct libinput_device *device);
+
+enum libinput_config_status
+libinput_device_config_rotation_set_angle(struct libinput_device *device, unsigned int degrees_cw);
+
+unsigned int
+libinput_device_config_rotation_get_default_angle(struct libinput_device *device);
+
 /* Keyboard functions */
 int libinput_device_keyboard_has_key(struct libinput_device *device, uint32_t code);
 
 /* libinput specific udev integration */
 struct udev_device *libinput_device_get_udev_device(struct libinput_device *device);
+
+/* Additional missing functions from official libinput API */
+
+/* Context management */
+struct libinput *libinput_udev_create_context(const struct libinput_interface *interface, void *user_data, struct udev *udev);
+int libinput_udev_assign_seat(struct libinput *libinput, const char *seat_id);
+struct libinput *libinput_path_create_context(const struct libinput_interface *interface, void *user_data);
+struct libinput_device *libinput_path_add_device(struct libinput *libinput, const char *path);
+void libinput_path_remove_device(struct libinput_device *device);
+int libinput_get_fd(struct libinput *libinput);
+struct libinput_event *libinput_get_event(struct libinput *libinput);
+enum libinput_event_type libinput_next_event_type(struct libinput *libinput);
+void libinput_set_user_data(struct libinput *libinput, void *user_data);
+void *libinput_get_user_data(struct libinput *libinput);
+int libinput_resume(struct libinput *libinput);
+void libinput_suspend(struct libinput *libinput);
+struct libinput *libinput_ref(struct libinput *libinput);
+struct libinput *libinput_unref(struct libinput *libinput);
+void libinput_log_set_priority(struct libinput *libinput, enum libinput_log_priority priority);
+enum libinput_log_priority libinput_log_get_priority(const struct libinput *libinput);
+void libinput_log_set_handler(struct libinput *libinput, libinput_log_handler log_handler);
+
+/* Seat management */
+struct libinput_seat *libinput_seat_ref(struct libinput_seat *seat);
+struct libinput_seat *libinput_seat_unref(struct libinput_seat *seat);
+void libinput_seat_set_user_data(struct libinput_seat *seat, void *user_data);
+void *libinput_seat_get_user_data(struct libinput_seat *seat);
+struct libinput *libinput_seat_get_context(struct libinput_seat *seat);
+const char *libinput_seat_get_physical_name(struct libinput_seat *seat);
+const char *libinput_seat_get_logical_name(struct libinput_seat *seat);
+
+/* Device management */
+struct libinput_device *libinput_device_ref(struct libinput_device *device);
+struct libinput_device *libinput_device_unref(struct libinput_device *device);
+void libinput_device_set_user_data(struct libinput_device *device, void *user_data);
+void *libinput_device_get_user_data(struct libinput_device *device);
+struct libinput *libinput_device_get_context(struct libinput_device *device);
+const char *libinput_device_get_sysname(struct libinput_device *device);
+const char *libinput_device_get_name(struct libinput_device *device);
+unsigned int libinput_device_get_id_bustype(struct libinput_device *device);
+unsigned int libinput_device_get_id_product(struct libinput_device *device);
+unsigned int libinput_device_get_id_vendor(struct libinput_device *device);
+const char *libinput_device_get_output_name(struct libinput_device *device);
+struct libinput_seat *libinput_device_get_seat(struct libinput_device *device);
+int libinput_device_set_seat_logical_name(struct libinput_device *device, const char *name);
+int libinput_device_has_capability(struct libinput_device *device, enum libinput_device_capability capability);
+int libinput_device_get_size(struct libinput_device *device, double *width, double *height);
+int libinput_device_touch_get_touch_count(struct libinput_device *device);
+
+/* Event management */
+void libinput_event_destroy(struct libinput_event *event);
+enum libinput_event_type libinput_event_get_type(struct libinput_event *event);
+struct libinput_device *libinput_event_get_device(struct libinput_event *event);
+struct libinput_event_pointer *libinput_event_get_pointer_event(struct libinput_event *event);
+struct libinput_event_keyboard *libinput_event_get_keyboard_event(struct libinput_event *event);
+struct libinput_event_touch *libinput_event_get_touch_event(struct libinput_event *event);
+struct libinput_event_gesture *libinput_event_get_gesture_event(struct libinput_event *event);
+struct libinput_event_tablet_tool *libinput_event_get_tablet_tool_event(struct libinput_event *event);
+struct libinput_event_tablet_pad *libinput_event_get_tablet_pad_event(struct libinput_event *event);
+struct libinput_event_switch *libinput_event_get_switch_event(struct libinput_event *event);
+struct libinput_event_device_notify *libinput_event_get_device_notify_event(struct libinput_event *event);
+struct libinput_event *libinput_event_device_notify_get_base_event(struct libinput_event_device_notify *event);
+
+/* Keyboard events */
+uint32_t libinput_event_keyboard_get_time(struct libinput_event_keyboard *event);
+uint32_t libinput_event_keyboard_get_key(struct libinput_event_keyboard *event);
+enum libinput_key_state libinput_event_keyboard_get_key_state(struct libinput_event_keyboard *event);
+struct libinput_event *libinput_event_keyboard_get_base_event(struct libinput_event_keyboard *event);
+uint32_t libinput_event_keyboard_get_seat_key_count(struct libinput_event_keyboard *event);
+
+/* Pointer events */
+uint32_t libinput_event_pointer_get_time(struct libinput_event_pointer *event);
+double libinput_event_pointer_get_dx(struct libinput_event_pointer *event);
+double libinput_event_pointer_get_dy(struct libinput_event_pointer *event);
+double libinput_event_pointer_get_absolute_x(struct libinput_event_pointer *event);
+double libinput_event_pointer_get_absolute_y(struct libinput_event_pointer *event);
+uint32_t libinput_event_pointer_get_button(struct libinput_event_pointer *event);
+enum libinput_button_state libinput_event_pointer_get_button_state(struct libinput_event_pointer *event);
+uint32_t libinput_event_pointer_get_seat_button_count(struct libinput_event_pointer *event);
+int libinput_event_pointer_has_axis(struct libinput_event_pointer *event, enum libinput_pointer_axis axis);
+double libinput_event_pointer_get_axis_value(struct libinput_event_pointer *event, enum libinput_pointer_axis axis);
+enum libinput_pointer_axis_source libinput_event_pointer_get_axis_source(struct libinput_event_pointer *event);
+double libinput_event_pointer_get_axis_value_discrete(struct libinput_event_pointer *event, enum libinput_pointer_axis axis);
+struct libinput_event *libinput_event_pointer_get_base_event(struct libinput_event_pointer *event);
+
+/* Touch events */
+uint32_t libinput_event_touch_get_time(struct libinput_event_touch *event);
+int32_t libinput_event_touch_get_slot(struct libinput_event_touch *event);
+double libinput_event_touch_get_x(struct libinput_event_touch *event);
+double libinput_event_touch_get_y(struct libinput_event_touch *event);
+struct libinput_event *libinput_event_touch_get_base_event(struct libinput_event_touch *event);
+
+/* Gesture events */
+uint32_t libinput_event_gesture_get_time(struct libinput_event_gesture *event);
+struct libinput_event *libinput_event_gesture_get_base_event(struct libinput_event_gesture *event);
+uint32_t libinput_event_gesture_get_finger_count(struct libinput_event_gesture *event);
+int libinput_event_gesture_get_cancelled(struct libinput_event_gesture *event);
+double libinput_event_gesture_get_dx(struct libinput_event_gesture *event);
+double libinput_event_gesture_get_dy(struct libinput_event_gesture *event);
+
+/* Switch events */
+enum libinput_switch libinput_event_switch_get_switch(struct libinput_event_switch *event);
+enum libinput_switch_state libinput_event_switch_get_switch_state(struct libinput_event_switch *event);
+struct libinput_event *libinput_event_switch_get_base_event(struct libinput_event_switch *event);
+uint32_t libinput_event_switch_get_time(struct libinput_event_switch *event);
+
+/* Tablet pad events */
+struct libinput_event *libinput_event_tablet_pad_get_base_event(struct libinput_event_tablet_pad *event);
+double libinput_event_tablet_pad_get_ring_position(struct libinput_event_tablet_pad *event);
+unsigned int libinput_event_tablet_pad_get_ring_number(struct libinput_event_tablet_pad *event);
+enum libinput_tablet_pad_ring_axis_source libinput_event_tablet_pad_get_ring_source(struct libinput_event_tablet_pad *event);
+double libinput_event_tablet_pad_get_strip_position(struct libinput_event_tablet_pad *event);
+unsigned int libinput_event_tablet_pad_get_strip_number(struct libinput_event_tablet_pad *event);
+enum libinput_tablet_pad_strip_axis_source libinput_event_tablet_pad_get_strip_source(struct libinput_event_tablet_pad *event);
+uint32_t libinput_event_tablet_pad_get_button_number(struct libinput_event_tablet_pad *event);
+enum libinput_button_state libinput_event_tablet_pad_get_button_state(struct libinput_event_tablet_pad *event);
+uint32_t libinput_event_tablet_pad_get_key(struct libinput_event_tablet_pad *event);
+enum libinput_key_state libinput_event_tablet_pad_get_key_state(struct libinput_event_tablet_pad *event);
+unsigned int libinput_event_tablet_pad_get_mode(struct libinput_event_tablet_pad *event);
+struct libinput_tablet_pad_mode_group *libinput_event_tablet_pad_get_mode_group(struct libinput_event_tablet_pad *event);
+uint32_t libinput_event_tablet_pad_get_time(struct libinput_event_tablet_pad *event);
+
+/* Configuration functions */
+const char *libinput_config_status_to_str(enum libinput_config_status status);
+
+/* Tap configuration */
+int libinput_device_config_tap_get_finger_count(struct libinput_device *device);
+enum libinput_config_status libinput_device_config_tap_set_enabled(struct libinput_device *device, enum libinput_config_tap_state enable);
+enum libinput_config_tap_state libinput_device_config_tap_get_enabled(struct libinput_device *device);
+enum libinput_config_tap_state libinput_device_config_tap_get_default_enabled(struct libinput_device *device);
+enum libinput_config_status libinput_device_config_tap_set_button_map(struct libinput_device *device, enum libinput_config_tap_button_map map);
+enum libinput_config_tap_button_map libinput_device_config_tap_get_button_map(struct libinput_device *device);
+enum libinput_config_tap_button_map libinput_device_config_tap_get_default_button_map(struct libinput_device *device);
+
+/* Calibration configuration */
+int libinput_device_config_calibration_has_matrix(struct libinput_device *device);
+enum libinput_config_status libinput_device_config_calibration_set_matrix(struct libinput_device *device, const float matrix[6]);
+int libinput_device_config_calibration_get_matrix(struct libinput_device *device, float matrix[6]);
+int libinput_device_config_calibration_get_default_matrix(struct libinput_device *device, float matrix[6]);
+
+/* Area configuration */
+enum libinput_config_status libinput_device_config_area_set_rectangle(struct libinput_device *device, const struct libinput_config_area_rectangle *rect);
+struct libinput_config_area_rectangle libinput_device_config_area_get_rectangle(struct libinput_device *device);
+struct libinput_config_area_rectangle libinput_device_config_area_get_default_rectangle(struct libinput_device *device);
+
+/* Send events configuration */
+uint32_t libinput_device_config_send_events_get_modes(struct libinput_device *device);
+enum libinput_config_status libinput_device_config_send_events_set_mode(struct libinput_device *device, uint32_t mode);
+uint32_t libinput_device_config_send_events_get_mode(struct libinput_device *device);
+uint32_t libinput_device_config_send_events_get_default_mode(struct libinput_device *device);
+
+/* Acceleration configuration */
+int libinput_device_config_accel_is_available(struct libinput_device *device);
+enum libinput_config_status libinput_device_config_accel_set_speed(struct libinput_device *device, double speed);
+double libinput_device_config_accel_get_speed(struct libinput_device *device);
+double libinput_device_config_accel_get_default_speed(struct libinput_device *device);
+uint32_t libinput_device_config_accel_get_profiles(struct libinput_device *device);
+enum libinput_config_status libinput_device_config_accel_set_profile(struct libinput_device *device, enum libinput_config_accel_profile profile);
+enum libinput_config_accel_profile libinput_device_config_accel_get_profile(struct libinput_device *device);
+enum libinput_config_accel_profile libinput_device_config_accel_get_default_profile(struct libinput_device *device);
+
+/* Scroll configuration */
+int libinput_device_config_scroll_has_natural_scroll(struct libinput_device *device);
+enum libinput_config_status libinput_device_config_scroll_set_natural_scroll_enabled(struct libinput_device *device, int enable);
+int libinput_device_config_scroll_get_natural_scroll_enabled(struct libinput_device *device);
+int libinput_device_config_scroll_get_default_natural_scroll_enabled(struct libinput_device *device);
+uint32_t libinput_device_config_scroll_get_methods(struct libinput_device *device);
+enum libinput_config_status libinput_device_config_scroll_set_method(struct libinput_device *device, enum libinput_config_scroll_method method);
+enum libinput_config_scroll_method libinput_device_config_scroll_get_method(struct libinput_device *device);
+enum libinput_config_scroll_method libinput_device_config_scroll_get_default_method(struct libinput_device *device);
+enum libinput_config_status libinput_device_config_scroll_set_button(struct libinput_device *device, uint32_t button);
+uint32_t libinput_device_config_scroll_get_button(struct libinput_device *device);
+uint32_t libinput_device_config_scroll_get_default_button(struct libinput_device *device);
+
+/* Left-handed configuration */
+int libinput_device_config_left_handed_is_available(struct libinput_device *device);
+enum libinput_config_status libinput_device_config_left_handed_set(struct libinput_device *device, int left_handed);
+int libinput_device_config_left_handed_get(struct libinput_device *device);
+int libinput_device_config_left_handed_get_default(struct libinput_device *device);
+
+/* Click configuration */
+uint32_t libinput_device_config_click_get_methods(struct libinput_device *device);
+enum libinput_config_status libinput_device_config_click_set_method(struct libinput_device *device, enum libinput_config_click_method method);
+enum libinput_config_click_method libinput_device_config_click_get_method(struct libinput_device *device);
+enum libinput_config_click_method libinput_device_config_click_get_default_method(struct libinput_device *device);
+
+/* Middle emulation configuration */
+int libinput_device_config_middle_emulation_is_available(struct libinput_device *device);
+enum libinput_config_status libinput_device_config_middle_emulation_set_enabled(struct libinput_device *device, enum libinput_config_middle_emulation_state enable);
+enum libinput_config_middle_emulation_state libinput_device_config_middle_emulation_get_enabled(struct libinput_device *device);
+enum libinput_config_middle_emulation_state libinput_device_config_middle_emulation_get_default_enabled(struct libinput_device *device);
+
+/* DWT configuration */
+int libinput_device_config_dwt_is_available(struct libinput_device *device);
+enum libinput_config_status libinput_device_config_dwt_set_enabled(struct libinput_device *device, enum libinput_config_dwt_state enable);
+enum libinput_config_dwt_state libinput_device_config_dwt_get_enabled(struct libinput_device *device);
+enum libinput_config_dwt_state libinput_device_config_dwt_get_default_enabled(struct libinput_device *device);
 
 #ifdef __cplusplus
 }

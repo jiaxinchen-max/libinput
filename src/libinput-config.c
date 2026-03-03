@@ -458,3 +458,91 @@ struct libinput_tablet_pad_mode_group *libinput_device_tablet_pad_get_mode_group
     (void)index;
     return NULL; /* Mock: no mode groups available */
 }
+
+/* Tablet pad mode group functions */
+unsigned int libinput_tablet_pad_mode_group_get_index(struct libinput_tablet_pad_mode_group *group)
+{
+    (void)group;
+    return 0;
+}
+
+unsigned int libinput_tablet_pad_mode_group_get_num_modes(struct libinput_tablet_pad_mode_group *group)
+{
+    (void)group;
+    return 1; /* Default to 1 mode */
+}
+
+unsigned int libinput_tablet_pad_mode_group_get_mode(struct libinput_tablet_pad_mode_group *group)
+{
+    (void)group;
+    return 0; /* Default mode */
+}
+
+int libinput_tablet_pad_mode_group_has_button(struct libinput_tablet_pad_mode_group *group, unsigned int button)
+{
+    (void)group;
+    (void)button;
+    return 0;
+}
+
+int libinput_tablet_pad_mode_group_has_dial(struct libinput_tablet_pad_mode_group *group, unsigned int dial)
+{
+    (void)group;
+    (void)dial;
+    return 0;
+}
+
+int libinput_tablet_pad_mode_group_has_ring(struct libinput_tablet_pad_mode_group *group, unsigned int ring)
+{
+    (void)group;
+    (void)ring;
+    return 0;
+}
+
+int libinput_tablet_pad_mode_group_has_strip(struct libinput_tablet_pad_mode_group *group, unsigned int strip)
+{
+    (void)group;
+    (void)strip;
+    return 0;
+}
+
+/* Device LED functions */
+void libinput_device_led_update(struct libinput_device *device, enum libinput_led leds)
+{
+    (void)device;
+    (void)leds;
+    /* Mock implementation - do nothing */
+}
+
+/* Area configuration functions */
+int libinput_device_config_area_has_rectangle(struct libinput_device *device)
+{
+    (void)device;
+    return 0; /* No area rectangle support in mock */
+}
+
+/* Rotation configuration functions */
+int libinput_device_config_rotation_is_available(struct libinput_device *device)
+{
+    (void)device;
+    return 0; /* No rotation support in mock */
+}
+
+unsigned int libinput_device_config_rotation_get_angle(struct libinput_device *device)
+{
+    (void)device;
+    return 0; /* Default angle */
+}
+
+enum libinput_config_status libinput_device_config_rotation_set_angle(struct libinput_device *device, unsigned int degrees_cw)
+{
+    (void)device;
+    (void)degrees_cw;
+    return LIBINPUT_CONFIG_STATUS_SUCCESS;
+}
+
+unsigned int libinput_device_config_rotation_get_default_angle(struct libinput_device *device)
+{
+    (void)device;
+    return 0; /* Default angle */
+}

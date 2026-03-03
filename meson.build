@@ -61,6 +61,7 @@ install_headers('src/libinput.h')
 src_libinput = [
 	'src/libinput.c',
 	'src/libinput-config.c',
+	'src/libinput-mock-all.c',
 	'src/evdev.c',
 	'src/evdev-mt-touchpad.c',
 	'src/path-seat.c',
