@@ -376,3 +376,85 @@ int libinput_device_config_calibration_get_default_matrix(struct libinput_device
     matrix[3] = 0.0f; matrix[4] = 1.0f; matrix[5] = 0.0f;
     return 1;
 }
+
+/* Device group functions */
+struct libinput_device_group *libinput_device_get_device_group(struct libinput_device *device)
+{
+    (void)device;
+    /* Mock: return a dummy pointer */
+    static struct libinput_device_group dummy_group;
+    return &dummy_group;
+}
+
+/* Switch functions */
+int libinput_device_switch_has_switch(struct libinput_device *device, enum libinput_switch_type sw)
+{
+    (void)device;
+    (void)sw;
+    return 0; /* Mock: no switches available */
+}
+
+/* Pointer functions */
+int libinput_device_pointer_has_button(struct libinput_device *device, uint32_t code)
+{
+    (void)device;
+    (void)code;
+    return 1; /* Mock: assume all buttons are available */
+}
+
+/* Area configuration functions */
+int libinput_device_config_area_get_rectangle(struct libinput_device *device, struct libinput_config_area_rectangle *rect)
+{
+    (void)device;
+    if (rect) {
+        /* Return full area */
+        rect->x1 = 0.0; rect->y1 = 0.0;
+        rect->x2 = 1.0; rect->y2 = 1.0;
+    }
+    return 1;
+}
+
+enum libinput_config_status libinput_device_config_area_set_rectangle(struct libinput_device *device, const struct libinput_config_area_rectangle *rect)
+{
+    (void)device;
+    (void)rect;
+    return LIBINPUT_CONFIG_STATUS_SUCCESS;
+}
+
+/* Tablet pad functions */
+int libinput_device_tablet_pad_get_num_buttons(struct libinput_device *device)
+{
+    (void)device;
+    return 0; /* Mock: no tablet pad buttons */
+}
+
+int libinput_device_tablet_pad_get_num_dials(struct libinput_device *device)
+{
+    (void)device;
+    return 0; /* Mock: no tablet pad dials */
+}
+
+int libinput_device_tablet_pad_get_num_rings(struct libinput_device *device)
+{
+    (void)device;
+    return 0; /* Mock: no tablet pad rings */
+}
+
+int libinput_device_tablet_pad_get_num_strips(struct libinput_device *device)
+{
+    (void)device;
+    return 0; /* Mock: no tablet pad strips */
+}
+
+int libinput_device_tablet_pad_get_num_mode_groups(struct libinput_device *device)
+{
+    (void)device;
+    return 0; /* Mock: no tablet pad mode groups */
+}
+
+struct libinput_tablet_pad_mode_group *libinput_device_tablet_pad_get_mode_group(struct libinput_device *device, unsigned int index)
+{
+    (void)device;
+    (void)index;
+    return NULL; /* Mock: no mode groups available */
+}

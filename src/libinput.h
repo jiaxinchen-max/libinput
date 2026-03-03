@@ -29,7 +29,14 @@ struct libinput_tablet_tool;
 struct libinput_tablet_pad;
 struct libinput_event_tablet_tool;
 struct libinput_event_tablet_pad;
+struct libinput_tablet_pad_mode_group;
+struct libinput_device_group;
 struct udev;
+
+struct libinput_config_area_rectangle {
+	double x1, y1;
+	double x2, y2;
+};
 
 enum libinput_event_type {
 	LIBINPUT_EVENT_NONE = 0,
@@ -111,6 +118,11 @@ enum libinput_tablet_tool_type {
 	LIBINPUT_TABLET_TOOL_TYPE_MOUSE,
 	LIBINPUT_TABLET_TOOL_TYPE_LENS,
 	LIBINPUT_TABLET_TOOL_TYPE_TOTEM,
+};
+
+enum libinput_switch_type {
+	LIBINPUT_SWITCH_LID = 1,
+	LIBINPUT_SWITCH_TABLET_MODE,
 };
 
 enum libinput_tablet_pad_ring_axis_source {
@@ -505,6 +517,44 @@ libinput_tablet_tool_has_slider(struct libinput_tablet_tool *tool);
 
 int
 libinput_tablet_tool_has_wheel(struct libinput_tablet_tool *tool);
+
+/* Device group functions */
+struct libinput_device_group *
+libinput_device_get_device_group(struct libinput_device *device);
+
+/* Switch functions */
+int
+libinput_device_switch_has_switch(struct libinput_device *device, enum libinput_switch_type sw);
+
+/* Pointer functions */
+int
+libinput_device_pointer_has_button(struct libinput_device *device, uint32_t code);
+
+/* Area configuration functions */
+int
+libinput_device_config_area_get_rectangle(struct libinput_device *device, struct libinput_config_area_rectangle *rect);
+
+enum libinput_config_status
+libinput_device_config_area_set_rectangle(struct libinput_device *device, const struct libinput_config_area_rectangle *rect);
+
+/* Tablet pad functions */
+int
+libinput_device_tablet_pad_get_num_buttons(struct libinput_device *device);
+
+int
+libinput_device_tablet_pad_get_num_dials(struct libinput_device *device);
+
+int
+libinput_device_tablet_pad_get_num_rings(struct libinput_device *device);
+
+int
+libinput_device_tablet_pad_get_num_strips(struct libinput_device *device);
+
+int
+libinput_device_tablet_pad_get_num_mode_groups(struct libinput_device *device);
+
+struct libinput_tablet_pad_mode_group *
+libinput_device_tablet_pad_get_mode_group(struct libinput_device *device, unsigned int index);
 
 /* Configuration functions */
 int libinput_device_config_tap_get_finger_count(struct libinput_device *device);
