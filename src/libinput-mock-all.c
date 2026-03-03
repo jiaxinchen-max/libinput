@@ -1,4 +1,5 @@
 #include "libinput.h"
+#include "libinput-private.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -672,19 +673,19 @@ uint32_t libinput_device_config_send_events_get_modes(struct libinput_device *de
     return LIBINPUT_CONFIG_SEND_EVENTS_ENABLED;
 }
 
-enum libinput_config_status libinput_device_config_send_events_set_mode(struct libinput_device *device, uint32_t mode)
+enum libinput_config_status libinput_device_config_send_events_set_mode(struct libinput_device *device, enum libinput_config_send_events_mode mode)
 {
     (void)device; (void)mode;
     return LIBINPUT_CONFIG_STATUS_SUCCESS;
 }
 
-uint32_t libinput_device_config_send_events_get_mode(struct libinput_device *device)
+enum libinput_config_send_events_mode libinput_device_config_send_events_get_mode(struct libinput_device *device)
 {
     (void)device;
     return LIBINPUT_CONFIG_SEND_EVENTS_ENABLED;
 }
 
-uint32_t libinput_device_config_send_events_get_default_mode(struct libinput_device *device)
+enum libinput_config_send_events_mode libinput_device_config_send_events_get_default_mode(struct libinput_device *device)
 {
     (void)device;
     return LIBINPUT_CONFIG_SEND_EVENTS_ENABLED;
