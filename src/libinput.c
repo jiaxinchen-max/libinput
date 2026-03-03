@@ -95,9 +95,14 @@ libinput_termux_create_context(const struct libinput_interface *interface,
     
     /* Initialize the termux input bridge */
     if (termux_input_bridge_init(libinput) < 0) {
+        libinput_log(libinput, LIBINPUT_LOG_PRIORITY_ERROR,
+                    "Failed to initialize termux input bridge");
         free(libinput);
         return NULL;
     }
+    
+    libinput_log(libinput, LIBINPUT_LOG_PRIORITY_INFO,
+                "Termux libinput context created with fd %d", termux_event_fd);
     
     return libinput;
 }
@@ -269,7 +274,13 @@ libinput_dispatch(struct libinput *libinput)
     
     /* Read events from termux-display-client and convert them */
     if (libinput->fd >= 0) {
-        termux_input_bridge_dispatch(libinput->fd);
+        int events_processed = termux_input_bridge_dispatch(libinput->fd);
+        if (events_processed < 0) {
+            libinput_log(libinput, LIBINPUT_LOG_PRIORITY_ERROR,
+                        "Error dispatching termux input events");
+            return -1;
+        }
+        return events_processed;
     }
     
     return 0;
