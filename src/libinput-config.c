@@ -403,15 +403,11 @@ int libinput_device_pointer_has_button(struct libinput_device *device, uint32_t 
 }
 
 /* Area configuration functions */
-int libinput_device_config_area_get_rectangle(struct libinput_device *device, struct libinput_config_area_rectangle *rect)
+struct libinput_config_area_rectangle libinput_device_config_area_get_rectangle(struct libinput_device *device)
 {
     (void)device;
-    if (rect) {
-        /* Return full area */
-        rect->x1 = 0.0; rect->y1 = 0.0;
-        rect->x2 = 1.0; rect->y2 = 1.0;
-    }
-    return 1;
+    struct libinput_config_area_rectangle rect = {0.0, 0.0, 1.0, 1.0};
+    return rect;
 }
 
 enum libinput_config_status libinput_device_config_area_set_rectangle(struct libinput_device *device, const struct libinput_config_area_rectangle *rect)

@@ -319,10 +319,10 @@ libinput_event_gesture_get_time_usec(struct libinput_event_gesture *event)
     return event ? ((struct libinput_event *)event)->time_usec : 0;
 }
 
-int
+uint32_t
 libinput_event_gesture_get_finger_count(struct libinput_event_gesture *event)
 {
-    return event ? event->finger_count : 0;
+    return event ? (uint32_t)event->finger_count : 0;
 }
 
 double

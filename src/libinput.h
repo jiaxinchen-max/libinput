@@ -514,6 +514,18 @@ libinput_event_gesture_get_scale(struct libinput_event_gesture *event);
 double
 libinput_event_gesture_get_angle_delta(struct libinput_event_gesture *event);
 
+uint32_t
+libinput_event_gesture_get_time(struct libinput_event_gesture *event);
+
+struct libinput_event *
+libinput_event_gesture_get_base_event(struct libinput_event_gesture *event);
+
+double
+libinput_event_gesture_get_dx(struct libinput_event_gesture *event);
+
+double
+libinput_event_gesture_get_dy(struct libinput_event_gesture *event);
+
 /* Tablet tool functions */
 struct libinput_tablet_tool *
 libinput_event_tablet_tool_get_tool(struct libinput_event_tablet_tool *event);
@@ -732,6 +744,13 @@ libinput_device_config_area_get_rectangle(struct libinput_device *device);
 
 enum libinput_config_status
 libinput_device_config_area_set_rectangle(struct libinput_device *device, const struct libinput_config_area_rectangle *rect);
+
+struct libinput_config_area_rectangle
+libinput_device_config_area_get_default_rectangle(struct libinput_device *device);
+
+/* Configuration functions */
+const char *
+libinput_config_status_to_str(enum libinput_config_status status);
 
 /* Tablet pad functions */
 int

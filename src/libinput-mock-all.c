@@ -462,11 +462,7 @@ struct libinput_event *libinput_event_gesture_get_base_event(struct libinput_eve
     return NULL;
 }
 
-uint32_t libinput_event_gesture_get_finger_count(struct libinput_event_gesture *event)
-{
-    (void)event;
-    return 2;
-}
+/* libinput_event_gesture_get_finger_count is implemented in evdev.c */
 
 int libinput_event_gesture_get_cancelled(struct libinput_event_gesture *event)
 {
@@ -653,12 +649,7 @@ enum libinput_config_status libinput_device_config_area_set_rectangle(struct lib
     return LIBINPUT_CONFIG_STATUS_SUCCESS;
 }
 
-struct libinput_config_area_rectangle libinput_device_config_area_get_rectangle(struct libinput_device *device)
-{
-    (void)device;
-    struct libinput_config_area_rectangle rect = {0, 0, 100, 100};
-    return rect;
-}
+/* libinput_device_config_area_get_rectangle is implemented in libinput-config.c */
 
 struct libinput_config_area_rectangle libinput_device_config_area_get_default_rectangle(struct libinput_device *device)
 {
