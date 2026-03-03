@@ -177,15 +177,7 @@ libinput_device_get_size(struct libinput_device *device,
     return 0;
 }
 
-int
-libinput_device_keyboard_has_key(struct libinput_device *device,
-                                 uint32_t code)
-{
-    if (!device || !device->has_keyboard)
-        return 0;
-        
-    return (code >= 1 && code <= 255);
-}
+/* libinput_device_keyboard_has_key moved to libinput-config.c */
 
 unsigned int
 libinput_device_get_id_product(struct libinput_device *device)
