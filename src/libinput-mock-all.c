@@ -1283,6 +1283,37 @@ double libinput_tablet_tool_config_pressure_range_get_default_maximum(struct lib
     return 1.0;
 }
 
+/* Additional tap configuration functions */
+enum libinput_config_status libinput_device_config_tap_set_drag_enabled(struct libinput_device *device, enum libinput_config_tap_state enable)
+{
+    (void)device; (void)enable;
+    return LIBINPUT_CONFIG_STATUS_SUCCESS;
+}
+
+enum libinput_config_status libinput_device_config_tap_set_drag_lock_enabled(struct libinput_device *device, enum libinput_config_tap_state enable)
+{
+    (void)device; (void)enable;
+    return LIBINPUT_CONFIG_STATUS_SUCCESS;
+}
+
+enum libinput_config_tap_state libinput_device_config_tap_get_drag_enabled(struct libinput_device *device)
+{
+    (void)device;
+    return LIBINPUT_CONFIG_TAP_DISABLED;
+}
+
+enum libinput_config_tap_state libinput_device_config_tap_get_default_drag_lock_enabled(struct libinput_device *device)
+{
+    (void)device;
+    return LIBINPUT_CONFIG_TAP_DISABLED;
+}
+
+enum libinput_config_tap_state libinput_device_config_tap_get_drag_lock_enabled(struct libinput_device *device)
+{
+    (void)device;
+    return LIBINPUT_CONFIG_TAP_DISABLED;
+}
+
 /* Event getter functions - removed duplicates, keeping only the ones already defined above */
 
 /* Tablet tool functions from evdev-mt-touchpad.c that need to be here */
@@ -1303,6 +1334,116 @@ struct libinput_tablet_tool *libinput_event_tablet_tool_get_tool(struct libinput
 {
     (void)event;
     return NULL;
+}
+
+/* Tablet tool coordinate transformation functions */
+double libinput_event_tablet_tool_get_x_transformed(struct libinput_event_tablet_tool *event, uint32_t width)
+{
+    (void)event; (void)width;
+    return 0.0;
+}
+
+double libinput_event_tablet_tool_get_y_transformed(struct libinput_event_tablet_tool *event, uint32_t height)
+{
+    (void)event; (void)height;
+    return 0.0;
+}
+
+/* Basic tablet tool coordinate functions */
+double libinput_event_tablet_tool_get_x(struct libinput_event_tablet_tool *event)
+{
+    (void)event;
+    return 0.0;
+}
+
+double libinput_event_tablet_tool_get_y(struct libinput_event_tablet_tool *event)
+{
+    (void)event;
+    return 0.0;
+}
+
+double libinput_event_tablet_tool_get_dx(struct libinput_event_tablet_tool *event)
+{
+    (void)event;
+    return 0.0;
+}
+
+double libinput_event_tablet_tool_get_dy(struct libinput_event_tablet_tool *event)
+{
+    (void)event;
+    return 0.0;
+}
+
+double libinput_event_tablet_tool_get_pressure(struct libinput_event_tablet_tool *event)
+{
+    (void)event;
+    return 0.0;
+}
+
+double libinput_event_tablet_tool_get_distance(struct libinput_event_tablet_tool *event)
+{
+    (void)event;
+    return 0.0;
+}
+
+double libinput_event_tablet_tool_get_tilt_x(struct libinput_event_tablet_tool *event)
+{
+    (void)event;
+    return 0.0;
+}
+
+double libinput_event_tablet_tool_get_tilt_y(struct libinput_event_tablet_tool *event)
+{
+    (void)event;
+    return 0.0;
+}
+
+double libinput_event_tablet_tool_get_rotation(struct libinput_event_tablet_tool *event)
+{
+    (void)event;
+    return 0.0;
+}
+
+double libinput_event_tablet_tool_get_slider_position(struct libinput_event_tablet_tool *event)
+{
+    (void)event;
+    return 0.0;
+}
+
+double libinput_event_tablet_tool_get_wheel_delta(struct libinput_event_tablet_tool *event)
+{
+    (void)event;
+    return 0.0;
+}
+
+int libinput_event_tablet_tool_get_wheel_delta_discrete(struct libinput_event_tablet_tool *event)
+{
+    (void)event;
+    return 0;
+}
+
+enum libinput_tablet_tool_tip_state libinput_event_tablet_tool_get_tip_state(struct libinput_event_tablet_tool *event)
+{
+    (void)event;
+    return LIBINPUT_TABLET_TOOL_TIP_UP;
+}
+
+enum libinput_tablet_tool_proximity_state libinput_event_tablet_tool_get_proximity_state(struct libinput_event_tablet_tool *event)
+{
+    (void)event;
+    return LIBINPUT_TABLET_TOOL_PROXIMITY_STATE_OUT;
+}
+
+uint32_t libinput_event_tablet_tool_get_button(struct libinput_event_tablet_tool *event)
+{
+    (void)event;
+    return 0;
+}
+
+enum libinput_button_state libinput_event_tablet_tool_get_button_state(struct libinput_event_tablet_tool *event)
+{
+    (void)event;
+    return LIBINPUT_BUTTON_STATE_RELEASED;
 }
 
 /* Tablet tool management functions - moved from evdev-mt-touchpad.c */
