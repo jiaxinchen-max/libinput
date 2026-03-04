@@ -1282,3 +1282,66 @@ double libinput_tablet_tool_config_pressure_range_get_default_maximum(struct lib
     (void)tool;
     return 1.0;
 }
+
+/* Event getter functions */
+struct libinput_event_keyboard *libinput_event_get_keyboard_event(struct libinput_event *event)
+{
+    (void)event;
+    return NULL;
+}
+
+struct libinput_event_pointer *libinput_event_get_pointer_event(struct libinput_event *event)
+{
+    (void)event;
+    return NULL;
+}
+
+struct libinput_event_touch *libinput_event_get_touch_event(struct libinput_event *event)
+{
+    (void)event;
+    return NULL;
+}
+
+struct libinput_event_tablet_tool *libinput_event_get_tablet_tool_event(struct libinput_event *event)
+{
+    (void)event;
+    return NULL;
+}
+
+struct libinput_event_tablet_pad *libinput_event_get_tablet_pad_event(struct libinput_event *event)
+{
+    (void)event;
+    return NULL;
+}
+
+struct libinput_event_gesture *libinput_event_get_gesture_event(struct libinput_event *event)
+{
+    (void)event;
+    return NULL;
+}
+
+struct libinput_event_switch *libinput_event_get_switch_event(struct libinput_event *event)
+{
+    (void)event;
+    return NULL;
+}
+
+/* Tablet tool functions from evdev-mt-touchpad.c that need to be here */
+uint64_t libinput_tablet_tool_get_serial(struct libinput_tablet_tool *tool)
+{
+    (void)tool;
+    return 0;
+}
+
+uint64_t libinput_tablet_tool_get_tool_id(struct libinput_tablet_tool *tool)
+{
+    (void)tool;
+    return 0;
+}
+
+/* Additional tablet tool event functions */
+struct libinput_tablet_tool *libinput_event_tablet_tool_get_tool(struct libinput_event_tablet_tool *event)
+{
+    (void)event;
+    return NULL;
+}
