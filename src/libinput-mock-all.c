@@ -1304,3 +1304,56 @@ struct libinput_tablet_tool *libinput_event_tablet_tool_get_tool(struct libinput
     (void)event;
     return NULL;
 }
+
+/* Tablet tool management functions - moved from evdev-mt-touchpad.c */
+struct libinput_tablet_tool *libinput_tablet_tool_ref(struct libinput_tablet_tool *tool)
+{
+    return tool;
+}
+
+struct libinput_tablet_tool *libinput_tablet_tool_unref(struct libinput_tablet_tool *tool)
+{
+    return tool;
+}
+
+enum libinput_tablet_tool_type libinput_tablet_tool_get_type(struct libinput_tablet_tool *tool)
+{
+    (void)tool;
+    return LIBINPUT_TABLET_TOOL_TYPE_PEN;
+}
+
+int libinput_tablet_tool_has_pressure(struct libinput_tablet_tool *tool)
+{
+    (void)tool;
+    return 0;
+}
+
+int libinput_tablet_tool_has_distance(struct libinput_tablet_tool *tool)
+{
+    (void)tool;
+    return 0;
+}
+
+int libinput_tablet_tool_has_rotation(struct libinput_tablet_tool *tool)
+{
+    (void)tool;
+    return 0;
+}
+
+int libinput_tablet_tool_has_tilt(struct libinput_tablet_tool *tool)
+{
+    (void)tool;
+    return 0;
+}
+
+int libinput_tablet_tool_has_slider(struct libinput_tablet_tool *tool)
+{
+    (void)tool;
+    return 0;
+}
+
+int libinput_tablet_tool_has_wheel(struct libinput_tablet_tool *tool)
+{
+    (void)tool;
+    return 0;
+}

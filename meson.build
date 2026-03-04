@@ -23,7 +23,7 @@ cflags = [
 	'-Wformat=2',
 	'-Wno-missing-field-initializers',
 	'-Wmissing-declarations',
-	'-fvisibility=hidden',
+	'-fvisibility=default',
 ]
 add_project_arguments(cc.get_supported_arguments(cflags), language : 'c')
 
