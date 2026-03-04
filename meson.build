@@ -42,14 +42,8 @@ dep_libevdev = declare_dependency()  # We provide our own mock
 dep_lm = cc.find_library('m', required : false)
 dep_pthread = dependency('threads')
 
-# termux-render integration (required dependency)
-dep_termux_client = dependency('termux-render', required : false)
-if not dep_termux_client.found()
-    # Try to find as a library
-    dep_termux_client = cc.find_library('termux-render', required : true)
-endif
-
-message('Using termux-render library for input integration')
+# Note: termux-render headers are in standard include path
+# We only need them for compilation, not linking (KWin handles the linking)
 
 # Include directories
 includes_include = include_directories('.')
@@ -76,7 +70,6 @@ deps_libinput = [
 	dep_libevdev,
 	dep_lm,
 	dep_pthread,
-	dep_termux_client,
 ]
 
 # We use libtool-version numbers for compatibility
