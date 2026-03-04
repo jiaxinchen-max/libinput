@@ -26,14 +26,6 @@ static struct termux_input_bridge *global_bridge = NULL;
 /* Forward declaration */
 static void process_android_event(struct termux_input_bridge *bridge, const lorieEvent *event);
 
-/* Function to get connection file descriptor - called by KWin */
-int get_conn_fd(void)
-{
-    if (global_bridge) {
-        return global_bridge->conn_fd;
-    }
-    return -1;
-}
 
 int
 termux_input_bridge_dispatch(int termux_fd)

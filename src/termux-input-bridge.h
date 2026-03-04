@@ -41,13 +41,6 @@ void termux_input_bridge_destroy(void);
  */
 int termux_input_bridge_is_connected(void);
 
-/**
- * Get the connection file descriptor for input events
- * Used by KWin to monitor input events
- * 
- * @return connection fd, or -1 if not available
- */
-int get_conn_fd(void);
 
 #ifdef __cplusplus
 }
