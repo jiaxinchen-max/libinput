@@ -5,6 +5,7 @@
 
 #include "libinput.h"
 #include "libinput-private.h"
+#include "evdev.h"
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>

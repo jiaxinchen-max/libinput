@@ -1284,34 +1284,34 @@ double libinput_tablet_tool_config_pressure_range_get_default_maximum(struct lib
 }
 
 /* Additional tap configuration functions */
-enum libinput_config_status libinput_device_config_tap_set_drag_enabled(struct libinput_device *device, enum libinput_config_tap_state enable)
+enum libinput_config_status libinput_device_config_tap_set_drag_enabled(struct libinput_device *device, enum libinput_config_drag_state enable)
 {
     (void)device; (void)enable;
     return LIBINPUT_CONFIG_STATUS_SUCCESS;
 }
 
-enum libinput_config_status libinput_device_config_tap_set_drag_lock_enabled(struct libinput_device *device, enum libinput_config_tap_state enable)
+enum libinput_config_status libinput_device_config_tap_set_drag_lock_enabled(struct libinput_device *device, enum libinput_config_drag_lock_state enable)
 {
     (void)device; (void)enable;
     return LIBINPUT_CONFIG_STATUS_SUCCESS;
 }
 
-enum libinput_config_tap_state libinput_device_config_tap_get_drag_enabled(struct libinput_device *device)
+enum libinput_config_drag_state libinput_device_config_tap_get_drag_enabled(struct libinput_device *device)
 {
     (void)device;
-    return LIBINPUT_CONFIG_TAP_DISABLED;
+    return LIBINPUT_CONFIG_DRAG_DISABLED;
 }
 
-enum libinput_config_tap_state libinput_device_config_tap_get_default_drag_lock_enabled(struct libinput_device *device)
+enum libinput_config_drag_lock_state libinput_device_config_tap_get_default_drag_lock_enabled(struct libinput_device *device)
 {
     (void)device;
-    return LIBINPUT_CONFIG_TAP_DISABLED;
+    return LIBINPUT_CONFIG_DRAG_LOCK_DISABLED;
 }
 
-enum libinput_config_tap_state libinput_device_config_tap_get_drag_lock_enabled(struct libinput_device *device)
+enum libinput_config_drag_lock_state libinput_device_config_tap_get_drag_lock_enabled(struct libinput_device *device)
 {
     (void)device;
-    return LIBINPUT_CONFIG_TAP_DISABLED;
+    return LIBINPUT_CONFIG_DRAG_LOCK_DISABLED;
 }
 
 /* Event getter functions - removed duplicates, keeping only the ones already defined above */
