@@ -5,6 +5,7 @@
 
 #include "termux-input-bridge.h"
 #include "libinput.h"
+#include "libinput-private.h"
 #include "evdev.h"
 #include <termux/render/render.h>
 #include <pthread.h>
