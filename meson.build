@@ -42,8 +42,12 @@ dep_libevdev = declare_dependency()  # We provide our own mock
 dep_lm = cc.find_library('m', required : false)
 dep_pthread = dependency('threads')
 
-# Note: termux-render headers are in standard include path
-# We only need them for compilation, not linking (KWin handles the linking)
+# termux-render dependency (required for keycode conversion)
+dep_termux_render = dependency('libtermux-render', required : false)
+if not dep_termux_render.found()
+    # Try to find as a library
+    dep_termux_render = cc.find_library('termux-render', required : true)
+endif
 
 # Include directories
 includes_include = include_directories('.')
@@ -70,6 +74,7 @@ deps_libinput = [
 	dep_libevdev,
 	dep_lm,
 	dep_pthread,
+	dep_termux_render,
 ]
 
 # We use libtool-version numbers for compatibility
@@ -101,7 +106,7 @@ pkgconfig.generate(
 	description : 'Input device library (Termux/Android compatible)',
 	version : meson.project_version(),
 	libraries : lib_libinput,
-	requires : 'libudev',
+	requires : ['libudev', 'libtermux-render'],
 )
 
 ############ output files ############
