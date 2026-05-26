@@ -3,8 +3,25 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <stddef.h>
+#include <linux/input-event-codes.h>
 
 /* Mock implementations for all libinput functions */
+
+static struct libinput_event *keyboard_base_event(struct libinput_event_keyboard *event)
+{
+    return (struct libinput_event *)((char *)event - offsetof(struct libinput_event, event.keyboard));
+}
+
+static struct libinput_event *pointer_base_event(struct libinput_event_pointer *event)
+{
+    return (struct libinput_event *)((char *)event - offsetof(struct libinput_event, event.pointer));
+}
+
+static struct libinput_event *touch_base_event(struct libinput_event_touch *event)
+{
+    return (struct libinput_event *)((char *)event - offsetof(struct libinput_event, event.touch));
+}
 
 /* Context management */
 struct libinput *libinput_udev_create_context(const struct libinput_interface *interface, void *user_data, struct udev *udev)
@@ -43,14 +60,37 @@ int libinput_get_fd(struct libinput *libinput)
 
 struct libinput_event *libinput_get_event(struct libinput *libinput)
 {
-    (void)libinput;
-    return NULL; /* No events in mock */
+    struct libinput_event *event;
+
+    if (!libinput)
+        return NULL;
+
+    pthread_mutex_lock(&libinput->event_mutex);
+    event = libinput->event_queue_head;
+    if (event) {
+        libinput->event_queue_head = event->next;
+        if (!libinput->event_queue_head)
+            libinput->event_queue_tail = NULL;
+        event->next = NULL;
+    }
+    pthread_mutex_unlock(&libinput->event_mutex);
+
+    return event;
 }
 
 enum libinput_event_type libinput_next_event_type(struct libinput *libinput)
 {
-    (void)libinput;
-    return LIBINPUT_EVENT_NONE;
+    enum libinput_event_type type = LIBINPUT_EVENT_NONE;
+
+    if (!libinput)
+        return LIBINPUT_EVENT_NONE;
+
+    pthread_mutex_lock(&libinput->event_mutex);
+    if (libinput->event_queue_head)
+        type = libinput->event_queue_head->type;
+    pthread_mutex_unlock(&libinput->event_mutex);
+
+    return type;
 }
 
 void libinput_set_user_data(struct libinput *libinput, void *user_data)
@@ -76,28 +116,35 @@ void libinput_suspend(struct libinput *libinput)
 
 struct libinput *libinput_ref(struct libinput *libinput)
 {
+    if (libinput)
+        libinput->refcount++;
     return libinput;
 }
 
 struct libinput *libinput_unref(struct libinput *libinput)
 {
+    if (libinput && --libinput->refcount == 0) {
+        libinput_destroy(libinput);
+        return NULL;
+    }
     return libinput;
 }
 
 void libinput_log_set_priority(struct libinput *libinput, enum libinput_log_priority priority)
 {
-    (void)libinput; (void)priority;
+    if (libinput)
+        libinput->log_priority = priority;
 }
 
 enum libinput_log_priority libinput_log_get_priority(const struct libinput *libinput)
 {
-    (void)libinput;
-    return LIBINPUT_LOG_PRIORITY_ERROR;
+    return libinput ? libinput->log_priority : LIBINPUT_LOG_PRIORITY_ERROR;
 }
 
 void libinput_log_set_handler(struct libinput *libinput, libinput_log_handler log_handler)
 {
-    (void)libinput; (void)log_handler;
+    if (libinput)
+        libinput->log_handler = log_handler;
 }
 
 /* Seat management */
@@ -153,13 +200,13 @@ struct libinput_device *libinput_device_unref(struct libinput_device *device)
 
 void libinput_device_set_user_data(struct libinput_device *device, void *user_data)
 {
-    (void)device; (void)user_data;
+    if (device)
+        device->user_data = user_data;
 }
 
 void *libinput_device_get_user_data(struct libinput_device *device)
 {
-    (void)device;
-    return NULL;
+    return device ? device->user_data : NULL;
 }
 
 struct libinput *libinput_device_get_context(struct libinput_device *device)
@@ -224,8 +271,27 @@ struct udev_device *libinput_device_get_udev_device(struct libinput_device *devi
 
 int libinput_device_has_capability(struct libinput_device *device, enum libinput_device_capability capability)
 {
-    (void)device; (void)capability;
-    return 1; /* Mock: support all capabilities */
+    if (!device)
+        return 0;
+
+    switch (capability) {
+    case LIBINPUT_DEVICE_CAP_KEYBOARD:
+        return device->has_keyboard;
+    case LIBINPUT_DEVICE_CAP_POINTER:
+        return device->has_pointer;
+    case LIBINPUT_DEVICE_CAP_TOUCH:
+        return device->has_touch;
+    case LIBINPUT_DEVICE_CAP_TABLET_TOOL:
+        return device->has_tablet_tool;
+    case LIBINPUT_DEVICE_CAP_TABLET_PAD:
+        return device->has_tablet_pad;
+    case LIBINPUT_DEVICE_CAP_GESTURE:
+        return device->has_gesture;
+    case LIBINPUT_DEVICE_CAP_SWITCH:
+        return device->has_switch;
+    default:
+        return 0;
+    }
 }
 
 int libinput_device_get_size(struct libinput_device *device, double *width, double *height)
@@ -238,8 +304,9 @@ int libinput_device_get_size(struct libinput_device *device, double *width, doub
 
 int libinput_device_pointer_has_button(struct libinput_device *device, uint32_t code)
 {
-    (void)device; (void)code;
-    return 1;
+    if (!device || !device->has_pointer)
+        return 0;
+    return code >= BTN_LEFT && code <= BTN_TASK;
 }
 
 int libinput_device_keyboard_has_key(struct libinput_device *device, uint32_t code)
@@ -363,37 +430,32 @@ void libinput_device_led_update(struct libinput_device *device, enum libinput_le
 /* Event management */
 void libinput_event_destroy(struct libinput_event *event)
 {
-    (void)event;
+    free(event);
 }
 
 enum libinput_event_type libinput_event_get_type(struct libinput_event *event)
 {
-    (void)event;
-    return LIBINPUT_EVENT_NONE;
+    return event ? event->type : LIBINPUT_EVENT_NONE;
 }
 
 struct libinput_device *libinput_event_get_device(struct libinput_event *event)
 {
-    (void)event;
-    return NULL;
+    return event ? event->device : NULL;
 }
 
 struct libinput_event_pointer *libinput_event_get_pointer_event(struct libinput_event *event)
 {
-    (void)event;
-    return NULL;
+    return event ? &event->event.pointer : NULL;
 }
 
 struct libinput_event_keyboard *libinput_event_get_keyboard_event(struct libinput_event *event)
 {
-    (void)event;
-    return NULL;
+    return event ? &event->event.keyboard : NULL;
 }
 
 struct libinput_event_touch *libinput_event_get_touch_event(struct libinput_event *event)
 {
-    (void)event;
-    return NULL;
+    return event ? &event->event.touch : NULL;
 }
 
 struct libinput_event_gesture *libinput_event_get_gesture_event(struct libinput_event *event)
@@ -435,117 +497,100 @@ struct libinput_event *libinput_event_device_notify_get_base_event(struct libinp
 /* Keyboard events */
 uint32_t libinput_event_keyboard_get_time(struct libinput_event_keyboard *event)
 {
-    (void)event;
-    return 0;
+    return (uint32_t)(libinput_event_keyboard_get_time_usec(event) / 1000);
 }
 
 uint64_t libinput_event_keyboard_get_time_usec(struct libinput_event_keyboard *event)
 {
-    (void)event;
-    return 0;
+    return event ? keyboard_base_event(event)->time_usec : 0;
 }
 
 uint32_t libinput_event_keyboard_get_key(struct libinput_event_keyboard *event)
 {
-    (void)event;
-    return 0;
+    return event ? event->key : 0;
 }
 
 enum libinput_key_state libinput_event_keyboard_get_key_state(struct libinput_event_keyboard *event)
 {
-    (void)event;
-    return LIBINPUT_KEY_STATE_RELEASED;
+    return event ? event->state : LIBINPUT_KEY_STATE_RELEASED;
 }
 
 struct libinput_event *libinput_event_keyboard_get_base_event(struct libinput_event_keyboard *event)
 {
-    (void)event;
-    return NULL;
+    return event ? keyboard_base_event(event) : NULL;
 }
 
 uint32_t libinput_event_keyboard_get_seat_key_count(struct libinput_event_keyboard *event)
 {
-    (void)event;
-    return 0;
+    return event && event->state == LIBINPUT_KEY_STATE_PRESSED ? 1 : 0;
 }
 
 /* Pointer events */
 uint32_t libinput_event_pointer_get_time(struct libinput_event_pointer *event)
 {
-    (void)event;
-    return 0;
+    return (uint32_t)(libinput_event_pointer_get_time_usec(event) / 1000);
 }
 
 uint64_t libinput_event_pointer_get_time_usec(struct libinput_event_pointer *event)
 {
-    (void)event;
-    return 0;
+    return event ? pointer_base_event(event)->time_usec : 0;
 }
 
 double libinput_event_pointer_get_dx(struct libinput_event_pointer *event)
 {
-    (void)event;
-    return 0.0;
+    return event ? event->dx : 0.0;
 }
 
 double libinput_event_pointer_get_dy(struct libinput_event_pointer *event)
 {
-    (void)event;
-    return 0.0;
+    return event ? event->dy : 0.0;
 }
 
 double libinput_event_pointer_get_dx_unaccelerated(struct libinput_event_pointer *event)
 {
-    (void)event;
-    return 0.0;
+    return event ? event->dx_unaccel : 0.0;
 }
 
 double libinput_event_pointer_get_dy_unaccelerated(struct libinput_event_pointer *event)
 {
-    (void)event;
-    return 0.0;
+    return event ? event->dy_unaccel : 0.0;
 }
 
 double libinput_event_pointer_get_absolute_x(struct libinput_event_pointer *event)
 {
-    (void)event;
-    return 0.0;
+    return event ? event->absolute_x : 0.0;
 }
 
 double libinput_event_pointer_get_absolute_y(struct libinput_event_pointer *event)
 {
-    (void)event;
-    return 0.0;
+    return event ? event->absolute_y : 0.0;
 }
 
 double libinput_event_pointer_get_absolute_x_transformed(struct libinput_event_pointer *event, uint32_t width)
 {
-    (void)event; (void)width;
-    return 0.0;
+    (void)width;
+    return event ? event->absolute_x : 0.0;
 }
 
 double libinput_event_pointer_get_absolute_y_transformed(struct libinput_event_pointer *event, uint32_t height)
 {
-    (void)event; (void)height;
-    return 0.0;
+    (void)height;
+    return event ? event->absolute_y : 0.0;
 }
 
 uint32_t libinput_event_pointer_get_button(struct libinput_event_pointer *event)
 {
-    (void)event;
-    return 0;
+    return event ? event->button : 0;
 }
 
 enum libinput_button_state libinput_event_pointer_get_button_state(struct libinput_event_pointer *event)
 {
-    (void)event;
-    return LIBINPUT_BUTTON_STATE_RELEASED;
+    return event ? event->button_state : LIBINPUT_BUTTON_STATE_RELEASED;
 }
 
 uint32_t libinput_event_pointer_get_seat_button_count(struct libinput_event_pointer *event)
 {
-    (void)event;
-    return 0;
+    return event && event->button_state == LIBINPUT_BUTTON_STATE_PRESSED ? 1 : 0;
 }
 
 int libinput_event_pointer_has_axis(struct libinput_event_pointer *event, enum libinput_pointer_axis axis)
@@ -586,63 +631,55 @@ int32_t libinput_event_pointer_get_scroll_value_v120(struct libinput_event_point
 
 struct libinput_event *libinput_event_pointer_get_base_event(struct libinput_event_pointer *event)
 {
-    (void)event;
-    return NULL;
+    return event ? pointer_base_event(event) : NULL;
 }
 
 /* Touch events */
 uint32_t libinput_event_touch_get_time(struct libinput_event_touch *event)
 {
-    (void)event;
-    return 0;
+    return (uint32_t)(libinput_event_touch_get_time_usec(event) / 1000);
 }
 
 uint64_t libinput_event_touch_get_time_usec(struct libinput_event_touch *event)
 {
-    (void)event;
-    return 0;
+    return event ? touch_base_event(event)->time_usec : 0;
 }
 
 int32_t libinput_event_touch_get_slot(struct libinput_event_touch *event)
 {
-    (void)event;
-    return 0;
+    return event ? event->slot : 0;
 }
 
 int32_t libinput_event_touch_get_seat_slot(struct libinput_event_touch *event)
 {
-    (void)event;
-    return 0;
+    return event ? event->slot : 0;
 }
 
 double libinput_event_touch_get_x(struct libinput_event_touch *event)
 {
-    (void)event;
-    return 0.0;
+    return event ? event->x : 0.0;
 }
 
 double libinput_event_touch_get_y(struct libinput_event_touch *event)
 {
-    (void)event;
-    return 0.0;
+    return event ? event->y : 0.0;
 }
 
 double libinput_event_touch_get_x_transformed(struct libinput_event_touch *event, uint32_t width)
 {
-    (void)event; (void)width;
-    return 0.0;
+    (void)width;
+    return event ? event->x : 0.0;
 }
 
 double libinput_event_touch_get_y_transformed(struct libinput_event_touch *event, uint32_t height)
 {
-    (void)event; (void)height;
-    return 0.0;
+    (void)height;
+    return event ? event->y : 0.0;
 }
 
 struct libinput_event *libinput_event_touch_get_base_event(struct libinput_event_touch *event)
 {
-    (void)event;
-    return NULL;
+    return event ? touch_base_event(event) : NULL;
 }
 
 /* Gesture events */

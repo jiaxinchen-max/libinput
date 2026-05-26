@@ -14,6 +14,7 @@
 #include <sys/eventfd.h>
 #include <errno.h>
 #include <string.h>
+#include <linux/input-event-codes.h>
 
 struct termux_input_bridge {
     struct libinput *libinput;
@@ -25,6 +26,20 @@ static struct termux_input_bridge *global_bridge = NULL;
 
 /* Forward declaration */
 static void process_android_event(struct termux_input_bridge *bridge, const lorieEvent *event);
+
+static uint32_t lorie_button_to_linux(uint8_t detail)
+{
+    switch (detail) {
+    case 1:
+        return BTN_LEFT;
+    case 2:
+        return BTN_RIGHT;
+    case 3:
+        return BTN_MIDDLE;
+    default:
+        return detail;
+    }
+}
 
 
 int
@@ -125,7 +140,7 @@ process_android_event(struct termux_input_bridge *bridge, const lorieEvent *even
             if (event->mouse.detail > 0) {
                 libinput_event = create_pointer_button_event(
                     libinput, device,
-                    event->mouse.detail,
+                    lorie_button_to_linux(event->mouse.detail),
                     event->mouse.down ? LIBINPUT_BUTTON_STATE_PRESSED : LIBINPUT_BUTTON_STATE_RELEASED
                 );
                 
@@ -233,6 +248,7 @@ termux_input_bridge_init(struct libinput *libinput)
     if (!libinput->devices) {
         libinput->devices = device;
     }
+    queue_event(libinput, libinput_event_create(device, LIBINPUT_EVENT_DEVICE_ADDED, libinput_now_usec()));
     
     return 0;
 }

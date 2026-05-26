@@ -76,6 +76,8 @@ create_pointer_event(struct libinput *libinput,
     if (type == LIBINPUT_EVENT_POINTER_MOTION) {
         event->event.pointer.dx = x;
         event->event.pointer.dy = y;
+        event->event.pointer.dx_unaccel = x;
+        event->event.pointer.dy_unaccel = y;
     } else if (type == LIBINPUT_EVENT_POINTER_MOTION_ABSOLUTE) {
         event->event.pointer.absolute_x = x;
         event->event.pointer.absolute_y = y;
